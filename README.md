@@ -1,5 +1,6 @@
 # initra
 [![CI](https://github.com/JustinK33/initra/actions/workflows/ci.yml/badge.svg)](https://github.com/JustinK33/initra/actions/workflows/ci.yml)
+
 **A cross-platform CLI for scaffolding production-ready starter projects.**
 
 Instantly create fully-configured projects for Python, Node.js, Ruby, and Java with one command. Includes git initialization, framework boilerplate, dependency installation, optional GitHub integration, and VS Code launch.
