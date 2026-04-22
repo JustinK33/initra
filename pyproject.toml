@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "newproj"
+version = "0.1.0"
+description = "A cross-platform CLI for scaffolding production-ready projects"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Justin Kong" }]
+license = { text = "MIT" }
+keywords = ["scaffold", "cli", "project-generator", "starter", "templates"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+
+[project.scripts]
+newproj = "newproj:main"
+
+[tool.setuptools]
+py-modules = ["newproj", "newproj_cli", "newproj_core", "newproj_ops"]
