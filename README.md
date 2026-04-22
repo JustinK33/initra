@@ -1,5 +1,5 @@
-# newproj
-
+# initra
+[![CI](https://github.com/JustinK33/initra/actions/workflows/ci.yml/badge.svg)](https://github.com/JustinK33/initra/actions/workflows/ci.yml)
 **A cross-platform CLI for scaffolding production-ready starter projects.**
 
 Instantly create fully-configured projects for Python, Node.js, Ruby, and Java with one command. Includes git initialization, framework boilerplate, dependency installation, optional GitHub integration, and VS Code launch.
@@ -40,26 +40,26 @@ See [INSTALL.md](INSTALL.md) for detailed installation options.
 
 ```bash
 # FastAPI REST API with automatic virtual environment
-newproj myapi python fastapi
+initra myapi python fastapi
 cd myapi && source .venv/bin/activate
 
 # Express server with TypeScript and VS Code
-newproj server node express --ts --open
+initra server node express --ts --open
 
 # Full-stack Next.js with GitHub repo
-newproj app node next --gh --public
+initra app node next --gh --public
 
 # Rails app
-newproj blog ruby rails
+initra blog ruby rails
 
 # Spring Boot microservice
-newproj service java springboot
+initra service java springboot
 ```
 
 ## Command Format
 
 ```bash
-newproj <name> <language> <framework> [options]
+initra <name> <language> <framework> [options]
 ```
 
 ### Options
@@ -103,7 +103,7 @@ newproj <name> <language> <framework> [options]
 
 **Python FastAPI with auto-installed dependencies:**
 ```bash
-newproj myapi python fastapi
+initra myapi python fastapi
 cd myapi
 source .venv/bin/activate  # Auto-created
 pip install -r requirements.txt
@@ -112,7 +112,7 @@ uvicorn src.main:app --reload
 
 **TypeScript Express with GitHub and VS Code:**
 ```bash
-newproj api node express --ts --gh --public --open
+initra api node express --ts --gh --public --open
 cd api
 npm install
 npm run dev
@@ -120,14 +120,14 @@ npm run dev
 
 **Next.js with GitHub:**
 ```bash
-newproj webapp node next --gh --open
+initra webapp node next --gh --open
 cd webapp
 npm run dev
 ```
 
 **Django full-stack:**
 ```bash
-newproj blog python django
+initra blog python django
 cd blog
 source .venv/bin/activate
 python manage.py migrate
@@ -136,7 +136,7 @@ python manage.py runserver
 
 **Rails:**
 ```bash
-newproj store ruby rails
+initra store ruby rails
 cd store
 bundle install
 bin/rails server
@@ -144,14 +144,14 @@ bin/rails server
 
 **Spring Boot:**
 ```bash
-newproj users java springboot
+initra users java springboot
 cd users
 ./mvnw spring-boot:run
 ```
 
 **Koa:**
 ```bash
-newproj service node koa
+initra service node koa
 cd service
 npm install
 npm run dev
@@ -159,7 +159,7 @@ npm run dev
 
 **Sinatra:**
 ```bash
-newproj web ruby sinatra
+initra web ruby sinatra
 cd web
 bundle install
 bundle exec ruby app.rb
@@ -167,7 +167,7 @@ bundle exec ruby app.rb
 
 **Javalin:**
 ```bash
-newproj api java javalin
+initra api java javalin
 cd api
 mvn compile exec:java
 ```
@@ -188,7 +188,7 @@ Each project includes:
 
 ### Python Tests
 ```bash
-newproj myapp python fastapi
+initra myapp python fastapi
 cd myapp
 source .venv/bin/activate
 python -m unittest discover -s tests
@@ -196,7 +196,7 @@ python -m unittest discover -s tests
 
 ### Node.js (TypeScript) Tests
 ```bash
-newproj myapp node express --ts
+initra myapp node express --ts
 cd myapp
 npm install
 npm test
@@ -204,7 +204,7 @@ npm test
 
 ### Node.js (JavaScript) Tests
 ```bash
-newproj myapp node express
+initra myapp node express
 cd myapp
 npm install
 npm test
@@ -212,7 +212,7 @@ npm test
 
 ### Ruby Tests
 ```bash
-newproj myapp ruby rails
+initra myapp ruby rails
 cd myapp
 bundle install
 bin/rails test
@@ -220,7 +220,7 @@ bin/rails test
 
 ### Java Tests
 ```bash
-newproj myapp java springboot
+initra myapp java springboot
 cd myapp
 ./mvnw test
 ```
@@ -243,11 +243,11 @@ See [USAGE.md](USAGE.md) for:
 
 ```bash
 # Run directly without installation
-python3 newproj.py myapp python flask
+python3 initra.py myapp python flask
 
 # Install in editable mode
 pip install -e .
-newproj myapp python fastapi
+initra myapp python fastapi
 
 # Run automated CLI tests
 python -m unittest discover -s tests

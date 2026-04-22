@@ -3,7 +3,7 @@
 ## [1.0.0] - Initial Release
 
 ### Features
-- Initial release of newproj CLI
+- Initial release of initra CLI
 - Support for Python (Flask, FastAPI, Django)
 - Support for Node.js (Express, Express + TypeScript, Next.js)
 - Support for Ruby (Rails)

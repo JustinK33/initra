@@ -3,7 +3,7 @@
 ## Basic Command Format
 
 ```bash
-newproj <name> <language> <framework> [options]
+initra <name> <language> <framework> [options]
 ```
 
 ### Required Arguments
@@ -31,14 +31,14 @@ newproj <name> <language> <framework> [options]
 
 | Framework | Command | Use Case |
 |-----------|---------|----------|
-| Flask     | `newproj myapp python flask` | Lightweight, flexible web API |
-| FastAPI   | `newproj myapp python fastapi` | Modern, async web API |
-| Django    | `newproj myapp python django` | Full-featured web framework |
-| Aiohttp   | `newproj myapp python aiohttp` | Async web service framework |
+| Flask     | `initra myapp python flask` | Lightweight, flexible web API |
+| FastAPI   | `initra myapp python fastapi` | Modern, async web API |
+| Django    | `initra myapp python django` | Full-featured web framework |
+| Aiohttp   | `initra myapp python aiohttp` | Async web service framework |
 
 **Example:**
 ```bash
-newproj myapi python fastapi
+initra myapi python fastapi
 cd myapi
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -49,14 +49,14 @@ uvicorn src.main:app --reload
 
 | Framework | Command | Use Case |
 |-----------|---------|----------|
-| Express   | `newproj myapp node express` | Lightweight HTTP server |
-| Express + TS | `newproj myapp node express --ts` | Type-safe Express server |
-| Next.js   | `newproj myapp node next` | Full-stack React/SSR |
-| Koa       | `newproj myapp node koa` | Minimal middleware-based server |
+| Express   | `initra myapp node express` | Lightweight HTTP server |
+| Express + TS | `initra myapp node express --ts` | Type-safe Express server |
+| Next.js   | `initra myapp node next` | Full-stack React/SSR |
+| Koa       | `initra myapp node koa` | Minimal middleware-based server |
 
 **Example with Express (JavaScript):**
 ```bash
-newproj myserver node express
+initra myserver node express
 cd myserver
 npm install
 npm run dev
@@ -64,7 +64,7 @@ npm run dev
 
 **Example with Express (TypeScript):**
 ```bash
-newproj myserver node express --ts
+initra myserver node express --ts
 cd myserver
 npm install
 npm run dev
@@ -72,7 +72,7 @@ npm run dev
 
 **Example with Next.js:**
 ```bash
-newproj myapp node next
+initra myapp node next
 cd myapp
 npm run dev
 ```
@@ -81,12 +81,12 @@ npm run dev
 
 | Framework | Command | Use Case |
 |-----------|---------|----------|
-| Rails     | `newproj myapp ruby rails` | Full-featured web framework |
-| Sinatra   | `newproj myapp ruby sinatra` | Lightweight Ruby service framework |
+| Rails     | `initra myapp ruby rails` | Full-featured web framework |
+| Sinatra   | `initra myapp ruby sinatra` | Lightweight Ruby service framework |
 
 **Example:**
 ```bash
-newproj myblog ruby rails
+initra myblog ruby rails
 cd myblog
 bundle install
 bin/rails server
@@ -96,12 +96,12 @@ bin/rails server
 
 | Framework | Command | Use Case |
 |-----------|---------|----------|
-| Spring Boot | `newproj myapp java springboot` | Enterprise-grade framework |
-| Javalin | `newproj myapp java javalin` | Lightweight Java service framework |
+| Spring Boot | `initra myapp java springboot` | Enterprise-grade framework |
+| Javalin | `initra myapp java javalin` | Lightweight Java service framework |
 
 **Example:**
 ```bash
-newproj myapp java springboot
+initra myapp java springboot
 cd myapp
 ./mvnw spring-boot:run
 ```
@@ -111,7 +111,7 @@ cd myapp
 ### Create a FastAPI REST API
 
 ```bash
-newproj backend python fastapi
+initra backend python fastapi
 cd backend
 source .venv/bin/activate
 python -m pip install -r requirements.txt
@@ -122,7 +122,7 @@ uvicorn src.main:app --reload
 ### Create a TypeScript Express API with GitHub Integration
 
 ```bash
-newproj api-service node express --ts --gh --public --open
+initra api-service node express --ts --gh --public --open
 cd api-service
 npm install
 npm run dev
@@ -137,7 +137,7 @@ This will:
 ### Create a Django Blog with Full Setup
 
 ```bash
-newproj blog-app python django
+initra blog-app python django
 cd blog-app
 source .venv/bin/activate
 python -m pip install -r requirements.txt
@@ -148,7 +148,7 @@ python manage.py runserver
 ### Create a Rails Full-Stack App
 
 ```bash
-newproj ecommerce ruby rails
+initra ecommerce ruby rails
 cd ecommerce
 bundle install
 bin/rails server
@@ -158,7 +158,7 @@ bin/rails server
 ### Create a Sinatra API
 
 ```bash
-newproj micro ruby sinatra
+initra micro ruby sinatra
 cd micro
 bundle install
 bundle exec ruby app.rb
@@ -167,7 +167,7 @@ bundle exec ruby app.rb
 ### Create a Spring Boot Microservice
 
 ```bash
-newproj user-service java springboot
+initra user-service java springboot
 cd user-service
 ./mvnw spring-boot:run
 # Visit http://localhost:8080/
@@ -176,7 +176,7 @@ cd user-service
 ### Create a Javalin Microservice
 
 ```bash
-newproj edge java javalin
+initra edge java javalin
 cd edge
 mvn compile exec:java
 # Visit http://localhost:7000/
@@ -185,7 +185,7 @@ mvn compile exec:java
 ### Create a Koa API
 
 ```bash
-newproj gateway node koa
+initra gateway node koa
 cd gateway
 npm install
 npm run dev
@@ -193,10 +193,10 @@ npm run dev
 
 ## Interactive Mode
 
-If you run `newproj` with no arguments, it enters interactive mode:
+If you run `initra` with no arguments, it enters interactive mode:
 
 ```bash
-$ newproj
+$ initra
 No arguments supplied. Enter project details interactively.
 Project name: myapp
 Language options: java, node, python, ruby
@@ -212,7 +212,7 @@ Open the project in VS Code? [Y/n] y
 ### Python (Flask)
 
 ```bash
-newproj testapp python flask
+initra testapp python flask
 cd testapp
 source .venv/bin/activate
 python -m unittest discover -s tests
@@ -221,7 +221,7 @@ python -m unittest discover -s tests
 ### Python (FastAPI)
 
 ```bash
-newproj testapp python fastapi
+initra testapp python fastapi
 cd testapp
 source .venv/bin/activate
 python -m unittest discover -s tests
@@ -230,7 +230,7 @@ python -m unittest discover -s tests
 ### Node.js (Express - JavaScript)
 
 ```bash
-newproj testapp node express
+initra testapp node express
 cd testapp
 npm install
 npm test
@@ -239,7 +239,7 @@ npm test
 ### Node.js (Express - TypeScript)
 
 ```bash
-newproj testapp node express --ts
+initra testapp node express --ts
 cd testapp
 npm install
 npm test
@@ -251,7 +251,7 @@ npm test
 ### Node.js (Next.js)
 
 ```bash
-newproj testapp node next
+initra testapp node next
 cd testapp
 npm run dev
 # If generated with --no-install, run npm install first
@@ -266,7 +266,7 @@ python -m unittest discover -s tests
 ### Ruby (Rails)
 
 ```bash
-newproj testapp ruby rails
+initra testapp ruby rails
 cd testapp
 bundle install
 bin/rails test
@@ -275,7 +275,7 @@ bin/rails test
 ### Java (Spring Boot)
 
 ```bash
-newproj testapp java springboot
+initra testapp java springboot
 cd testapp
 ./mvnw test
 ```
@@ -287,7 +287,7 @@ cd testapp
 Generate a project and push to GitHub:
 
 ```bash
-newproj myapp node express --ts --gh --open
+initra myapp node express --ts --gh --open
 cd myapp
 git log --oneline  # View the initial commit
 git remote -v      # View the GitHub remote
@@ -296,7 +296,7 @@ git remote -v      # View the GitHub remote
 ### Chaining Commands
 
 ```bash
-newproj api python fastapi && \
+initra api python fastapi && \
 cd api && \
 source .venv/bin/activate && \
 pip install -r requirements.txt && \
@@ -306,46 +306,46 @@ uvicorn src.main:app --reload
 ### Preview Without Creating Files
 
 ```bash
-newproj demo node express --dry-run
+initra demo node express --dry-run
 ```
 
 ### Create Projects in Another Directory
 
 ```bash
-newproj api python fastapi --output-dir ~/workspaces
+initra api python fastapi --output-dir ~/workspaces
 ```
 
 ### JSON Output for Automation
 
 ```bash
-newproj api node koa --dry-run --json --no-git
+initra api node koa --dry-run --json --no-git
 ```
 
 ### List Supported Stacks
 
 ```bash
-newproj --list
+initra --list
 ```
 
 ### Skip Dependency Installation
 
 ```bash
-newproj backend python fastapi --no-install
+initra backend python fastapi --no-install
 # Later: activate .venv and run pip install -r requirements.txt
 ```
 
 ### Skip Git Initialization
 
 ```bash
-newproj sandbox node express --no-git
+initra sandbox node express --no-git
 ```
 
 ### Creating Multiple Projects
 
 ```bash
 # Create a frontend and backend
-newproj frontend node next --open
-newproj backend python fastapi --open
+initra frontend node next --open
+initra backend python fastapi --open
 
 # Then work on both
 ls -la frontend backend
@@ -410,29 +410,29 @@ myapp/
 
 1. **Use TypeScript for Express** – Better type safety and IDE support:
    ```bash
-   newproj myserver node express --ts
+   initra myserver node express --ts
    ```
 
 2. **Activate Python virtualenv immediately:**
    ```bash
-   newproj myapi python fastapi
+   initra myapi python fastapi
    cd myapi
    source .venv/bin/activate  # Or .venv\Scripts\activate on Windows
    ```
 
 3. **Use `--gh` for easy GitHub integration:**
    ```bash
-   newproj myapp python flask --gh --public
+   initra myapp python flask --gh --public
    ```
 
 4. **Open in VS Code for instant editing:**
    ```bash
-   newproj myapp node express --open
+   initra myapp node express --open
    ```
 
 5. **Check the generated README:**
    ```bash
-   newproj myapp ruby rails
+   initra myapp ruby rails
    cd myapp
    cat README.md
    ```

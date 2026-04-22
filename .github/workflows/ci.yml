@@ -34,8 +34,8 @@ jobs:
 
       - name: CLI smoke tests (dry-run)
         run: |
-          python newproj.py demo-python python aiohttp --dry-run --no-git
-          python newproj.py demo-node node koa --dry-run --no-git
-          python newproj.py demo-ruby ruby sinatra --dry-run --no-git
-          python newproj.py demo-java java javalin --dry-run --no-git
-          python newproj.py demo-next node next --dry-run --no-git
+          python initra.py demo-python python aiohttp --dry-run --no-git
+          python initra.py demo-node node koa --dry-run --no-git
+          python initra.py demo-ruby ruby sinatra --dry-run --no-git
+          python initra.py demo-java java javalin --dry-run --no-git
+          python initra.py demo-next node next --dry-run --no-git

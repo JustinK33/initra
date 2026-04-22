@@ -1,2 +1,2 @@
-# newproj uses only the Python standard library.
+# initra uses only the Python standard library.
 # This file is intentionally kept for packaging completeness.

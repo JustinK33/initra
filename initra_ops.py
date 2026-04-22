@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
 
-from newproj_core import CommandError, FrameworkPlan, ProjectSpec, generate_framework_plan, render_gitignore, render_readme
+from initra_core import CommandError, FrameworkPlan, ProjectSpec, generate_framework_plan, render_gitignore, render_readme
 
 COMMAND_TIMEOUT_SECONDS = 1800
 
@@ -216,7 +216,7 @@ def init_git_repo(path: Path, collector: list[str], echo: bool) -> None:
     except CommandError as exc:
         if "author identity unknown" in str(exc).lower():
             raise CommandError(
-                "Git commit failed because user.name and user.email are not configured. Run `git config --global user.name` and `git config --global user.email`, then rerun newproj."
+                "Git commit failed because user.name and user.email are not configured. Run `git config --global user.name` and `git config --global user.email`, then rerun initra."
             ) from exc
         raise
 

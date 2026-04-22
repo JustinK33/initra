@@ -1,8 +1,8 @@
 # Testing Guide
 
-This guide shows how to test `newproj` itself and verify that generated projects work correctly.
+This guide shows how to test `initra` itself and verify that generated projects work correctly.
 
-## Testing the newproj CLI
+## Testing the initra CLI
 
 ### 0. Run Automated CLI Tests
 
@@ -14,10 +14,10 @@ python -m unittest discover -s tests
 
 ```bash
 # Test help
-python3 newproj.py --help
+python3 initra.py --help
 
 # Test with a simple project
-python3 newproj.py test-app python flask
+python3 initra.py test-app python flask
 ls -la test-app
 cat test-app/README.md
 rm -rf test-app
@@ -30,11 +30,11 @@ rm -rf test-app
 pip install -e .
 
 # Test command is available
-which newproj
-newproj --help
+which initra
+initra --help
 
 # Generate a test project
-newproj test-install-cli python fastapi
+initra test-install-cli python fastapi
 cd test-install-cli
 ls -la
 ```
@@ -44,7 +44,7 @@ ls -la
 ### Python (FastAPI)
 
 ```bash
-newproj test-fastapi python fastapi
+initra test-fastapi python fastapi
 cd test-fastapi
 
 # Activate virtual environment
@@ -70,7 +70,7 @@ rm -rf test-fastapi
 ### Python (Flask)
 
 ```bash
-newproj test-flask python flask
+initra test-flask python flask
 cd test-flask
 
 source .venv/bin/activate
@@ -91,7 +91,7 @@ rm -rf test-flask
 ### Python (Django)
 
 ```bash
-newproj test-django python django
+initra test-django python django
 cd test-django
 
 source .venv/bin/activate
@@ -115,7 +115,7 @@ rm -rf test-django
 ### Node.js (Express - JavaScript)
 
 ```bash
-newproj test-express-js node express
+initra test-express-js node express
 cd test-express-js
 
 # Install dependencies
@@ -138,7 +138,7 @@ rm -rf test-express-js
 ### Node.js (Express - TypeScript)
 
 ```bash
-newproj test-express-ts node express --ts
+initra test-express-ts node express --ts
 cd test-express-ts
 
 # Install dependencies
@@ -168,7 +168,7 @@ rm -rf test-express-ts
 ### Node.js (Next.js)
 
 ```bash
-newproj test-next node next
+initra test-next node next
 cd test-next
 
 # If generated with --no-install
@@ -194,7 +194,7 @@ rm -rf test-next
 ### Node.js (Koa)
 
 ```bash
-newproj test-koa node koa
+initra test-koa node koa
 cd test-koa
 npm install
 npm test
@@ -208,7 +208,7 @@ rm -rf test-koa
 Prerequisite: `gem install rails && gem install bundler`
 
 ```bash
-newproj test-rails ruby rails
+initra test-rails ruby rails
 cd test-rails
 
 # Install dependencies
@@ -233,7 +233,7 @@ rm -rf test-rails
 Prerequisite: `gem install bundler`
 
 ```bash
-newproj test-sinatra ruby sinatra
+initra test-sinatra ruby sinatra
 cd test-sinatra
 bundle install
 ruby test/test_app.rb
@@ -247,7 +247,7 @@ rm -rf test-sinatra
 Prerequisite: `brew install spring-boot` (macOS) or equivalent
 
 ```bash
-newproj test-spring java springboot
+initra test-spring java springboot
 cd test-spring
 
 # Verify structure
@@ -267,7 +267,7 @@ rm -rf test-spring
 ### Java (Javalin)
 
 ```bash
-newproj test-javalin java javalin
+initra test-javalin java javalin
 cd test-javalin
 mvn test
 mvn compile exec:java
@@ -281,7 +281,7 @@ rm -rf test-javalin
 
 ```bash
 # Create a TypeScript Express project
-newproj ts-test node express --ts
+initra ts-test node express --ts
 cd ts-test
 
 # Verify TypeScript files exist
@@ -317,7 +317,7 @@ rm -rf ts-test
 ### Test Git Initialization
 
 ```bash
-newproj git-test python fastapi
+initra git-test python fastapi
 cd git-test
 
 # Verify git repo

@@ -8,8 +8,8 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
-from newproj_core import ProjectSpec, SUPPORTED_FRAMEWORKS, SUPPORTED_LANGUAGES, ScaffoldError, format_supported_stacks, sanitize_project_name
-from newproj_ops import scaffold_project
+from initra_core import ProjectSpec, SUPPORTED_FRAMEWORKS, SUPPORTED_LANGUAGES, ScaffoldError, format_supported_stacks, sanitize_project_name
+from initra_ops import scaffold_project
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -45,7 +45,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        prog="newproj",
+        prog="initra",
         description="Scaffold a production-ready project for common web stacks.",
     )
     parser.add_argument("name", nargs="?", help="Project directory name")
@@ -65,7 +65,7 @@ def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--output-dir", default=".", help="Base directory where the project folder is created")
     parser.add_argument("--json", action="store_true", dest="json_output", help="Print a machine-readable JSON summary")
     parser.add_argument("--list", action="store_true", dest="list_stacks", help="List supported languages/frameworks and exit")
-    parser.add_argument("--self-update", action="store_true", help="Update the installed newproj CLI")
+    parser.add_argument("--self-update", action="store_true", help="Update the installed initra CLI")
     parser.add_argument(
         "--update-method",
         choices=["auto", "pipx", "pip"],
@@ -84,9 +84,9 @@ def run_self_update(method: str, from_path: str | None) -> None:
     selected_method = detect_update_method() if method == "auto" else method
 
     if selected_method == "pipx":
-        command = ["pipx", "install", "--force", source_path] if source_path else ["pipx", "upgrade", "newproj"]
+        command = ["pipx", "install", "--force", source_path] if source_path else ["pipx", "upgrade", "initra"]
     elif selected_method == "pip":
-        command = [sys.executable, "-m", "pip", "install", "--upgrade", source_path or "newproj"]
+        command = [sys.executable, "-m", "pip", "install", "--upgrade", source_path or "initra"]
     else:
         raise ScaffoldError(f"Unsupported update method: {selected_method}")
 
@@ -191,7 +191,7 @@ def prompt_yes_no(label: str, default: bool) -> bool:
 
 def build_spec(args: argparse.Namespace) -> ProjectSpec:
     if not (args.name and args.language and args.framework):
-        raise ScaffoldError("Expected: newproj <name> <language> <framework> [options]")
+        raise ScaffoldError("Expected: initra <name> <language> <framework> [options]")
 
     language = args.language.lower().strip()
     framework = args.framework.lower().strip()

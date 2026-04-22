@@ -1,28 +1,28 @@
 # Quick Start
 
-Get started with `newproj` in 5 minutes.
+Get started with `initra` in 5 minutes.
 
 ## Installation (Choose One)
 
 ### Option 1: Using pipx (Recommended)
 
 ```bash
-pipx install /path/to/newproj
-newproj --help
+pipx install /path/to/initra
+initra --help
 ```
 
 ### Option 2: Direct Python
 
 ```bash
-pip install -e /path/to/newproj
-newproj --help
+pip install -e /path/to/initra
+initra --help
 ```
 
 ### Option 3: Run Directly
 
 ```bash
-cd /path/to/newproj
-python3 newproj.py --help
+cd /path/to/initra
+python3 initra.py --help
 ```
 
 ## Create Your First Project
@@ -30,7 +30,7 @@ python3 newproj.py --help
 ### FastAPI (Recommended to Start)
 
 ```bash
-newproj myapi python fastapi
+initra myapi python fastapi
 cd myapi
 source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 pip install -r requirements.txt
@@ -41,7 +41,7 @@ uvicorn src.main:app --reload
 ### Express with TypeScript
 
 ```bash
-newproj myserver node express --ts
+initra myserver node express --ts
 cd myserver
 npm install
 npm run dev
@@ -51,7 +51,7 @@ npm run dev
 ### Next.js Full-Stack
 
 ```bash
-newproj myapp node next
+initra myapp node next
 cd myapp
 npm run dev
 # Open http://localhost:3000
@@ -60,7 +60,7 @@ npm run dev
 ### Rails
 
 ```bash
-newproj myblog ruby rails
+initra myblog ruby rails
 cd myblog
 bundle install
 bin/rails server
@@ -70,7 +70,7 @@ bin/rails server
 ### Spring Boot
 
 ```bash
-newproj myservice java springboot
+initra myservice java springboot
 cd myservice
 ./mvnw spring-boot:run
 # Open http://localhost:8080
@@ -91,14 +91,14 @@ cd myservice
 ## Command Syntax
 
 ```bash
-newproj <name> <language> <framework> [options]
+initra <name> <language> <framework> [options]
 
 # Examples:
-newproj api python fastapi
-newproj backend node express --ts
-newproj webapp node next --gh --public --open
-newproj blog ruby rails
-newproj service java springboot
+initra api python fastapi
+initra backend node express --ts
+initra webapp node next --gh --public --open
+initra blog ruby rails
+initra service java springboot
 ```
 
 ## All Supported Stacks
@@ -158,16 +158,16 @@ cd myapp
 
 | Option | Purpose | Example |
 |--------|---------|---------|
-| `--ts` | Use TypeScript | `newproj app node express --ts` |
-| `--gh` | Create GitHub repo | `newproj app python flask --gh` |
-| `--public` | Make repo public | `newproj app python flask --gh --public` |
-| `--open` | Open in VS Code | `newproj app node express --open` |
-| `--no-install` | Skip dependency installs | `newproj app node express --no-install` |
-| `--no-git` | Skip git initialization | `newproj app python fastapi --no-git` |
-| `--dry-run` | Preview generated actions | `newproj app node next --dry-run` |
-| `--output-dir` | Choose base output folder | `newproj app node koa --output-dir ~/work` |
-| `--json` | Print JSON summary | `newproj app node koa --dry-run --json` |
-| `--list` | Show supported stacks | `newproj --list` |
+| `--ts` | Use TypeScript | `initra app node express --ts` |
+| `--gh` | Create GitHub repo | `initra app python flask --gh` |
+| `--public` | Make repo public | `initra app python flask --gh --public` |
+| `--open` | Open in VS Code | `initra app node express --open` |
+| `--no-install` | Skip dependency installs | `initra app node express --no-install` |
+| `--no-git` | Skip git initialization | `initra app python fastapi --no-git` |
+| `--dry-run` | Preview generated actions | `initra app node next --dry-run` |
+| `--output-dir` | Choose base output folder | `initra app node koa --output-dir ~/work` |
+| `--json` | Print JSON summary | `initra app node koa --dry-run --json` |
+| `--list` | Show supported stacks | `initra --list` |
 
 ## What Gets Created
 
@@ -190,7 +190,7 @@ Every project includes:
 
 ## Next Steps
 
-1. ✅ Install newproj
+1. ✅ Install initra
 2. ✅ Create your first project
 3. ✅ Start developing
 4. ✅ Push to GitHub (with `--gh`)
