@@ -5,9 +5,11 @@ import json
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Sequence
 
+from . import __version__
 from .core import ProjectSpec, SUPPORTED_FRAMEWORKS, SUPPORTED_LANGUAGES, ScaffoldError, format_supported_stacks, sanitize_project_name
 from .ops import scaffold_project
 
@@ -28,6 +30,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     except ScaffoldError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
+    except SystemExit as exc:
+        if isinstance(exc.code, int):
+            return exc.code
+        return 0 if exc.code is None else 1
 
     validation_error = validate_mode_args(args)
     if validation_error:
@@ -92,6 +98,8 @@ Commands:
     Update the installed CLI.
   initra --uninstall [--uninstall-method auto|pipx|pip]
     Remove the installed CLI.
+  initra -v | --version
+    Print CLI version and exit.
   initra man
     Show this manual.
 
@@ -120,6 +128,8 @@ Tags / options:
     Print scaffold results as JSON.
   --list
     Print supported stacks and exit.
+  -v, --version
+    Print CLI version and exit.
   --update
     Update initra.
   --update-method auto|pipx|pip
@@ -209,7 +219,8 @@ def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--output-dir", default=".", help="Base directory where the project folder is created")
     parser.add_argument("--json", action="store_true", dest="json_output", help="Print a machine-readable JSON summary")
     parser.add_argument("--list", action="store_true", dest="list_stacks", help="List supported languages/frameworks and exit")
-    parser.add_argument("--update", action="store_true", help="Update the installed initra CLI")
+    parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}", help="Print CLI version and exit")
+    parser.add_argument("--update", "--upgrade", action="store_true", help="Update the installed initra CLI")
     parser.add_argument(
         "--update-method",
         choices=["auto", "pipx", "pip"],
@@ -268,7 +279,10 @@ def execute_update_command(command: Sequence[str]) -> None:
     display = " ".join(command)
     print(f"$ {display}")
     try:
-        completed = subprocess.run(list(command), check=True, capture_output=True, text=True)
+        # Run from a neutral temp directory so pipx package-name args are not
+        # misclassified as local paths when cwd contains similarly named folders.
+        with tempfile.TemporaryDirectory() as tmp:
+            completed = subprocess.run(list(command), check=True, capture_output=True, text=True, cwd=tmp)
     except FileNotFoundError as exc:
         raise ScaffoldError(f"Update command not found: {command[0]}") from exc
     except subprocess.CalledProcessError as exc:

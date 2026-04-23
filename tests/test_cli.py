@@ -8,6 +8,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
+from initra import __version__
 from initra.cli import build_spec, fill_missing_args_interactively, main, validate_mode_args
 from initra.core import ProjectSpec, ScaffoldError, format_supported_stacks, generate_framework_plan, sanitize_project_name
 
@@ -130,6 +131,26 @@ class CliBehaviorTests(unittest.TestCase):
             code = main(["manual"])
         self.assertEqual(code, 0)
         self.assertIn("initra manual", buffer.getvalue())
+
+    def test_version_short_flag_prints_version(self) -> None:
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = main(["-v"])
+        self.assertEqual(code, 0)
+        self.assertEqual(buffer.getvalue().strip(), f"initra {__version__}")
+
+    def test_version_long_flag_prints_version(self) -> None:
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = main(["--version"])
+        self.assertEqual(code, 0)
+        self.assertEqual(buffer.getvalue().strip(), f"initra {__version__}")
+
+    def test_upgrade_alias_invokes_update_handler(self) -> None:
+        with patch("initra.cli.run_self_update") as update_mock:
+            code = main(["--upgrade"])
+        self.assertEqual(code, 0)
+        update_mock.assert_called_once_with("auto", None)
 
     def test_json_flag_returns_machine_readable_output(self) -> None:
         buffer = io.StringIO()
