@@ -173,6 +173,40 @@ cd api
 mvn compile exec:java
 ```
 
+## Best-Practice Command Recipes
+
+Use these as copy/paste starters for common workflows.
+
+**1) Safe preview first, then scaffold for real**
+```bash
+# Preview exactly what will be created (no files written)
+initra orders-api python fastapi --dry-run --license --tutorial
+
+# Run the same scaffold for real after preview
+initra orders-api python fastapi --license --tutorial
+```
+
+**2) Multi-tag setup for a production-ready Node project**
+```bash
+initra billing-service node express --ts --gh --public --open --license
+```
+
+**3) Generate into a dedicated workspace folder**
+```bash
+initra auth-service python django --output-dir ~/dev/services
+```
+
+**4) CI/automation-friendly output**
+```bash
+# Get machine-readable scaffold details for scripts/pipelines
+initra analytics-api node koa --json
+```
+
+**5) Faster local scaffolding when you want full manual control**
+```bash
+initra playground ruby sinatra --no-install --no-git
+```
+
 ## What Gets Created
 
 Each project includes:
