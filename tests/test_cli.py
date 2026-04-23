@@ -4,7 +4,7 @@ import argparse
 import io
 import json
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
@@ -114,6 +114,23 @@ class CliBehaviorTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("Supported stacks:", buffer.getvalue())
 
+    def test_man_command_prints_manual(self) -> None:
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = main(["man"])
+        self.assertEqual(code, 0)
+        output = buffer.getvalue()
+        self.assertIn("initra manual", output)
+        self.assertIn("Tags / options:", output)
+        self.assertIn("initra --list", output)
+
+    def test_manual_alias_prints_manual(self) -> None:
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = main(["manual"])
+        self.assertEqual(code, 0)
+        self.assertIn("initra manual", buffer.getvalue())
+
     def test_json_flag_returns_machine_readable_output(self) -> None:
         buffer = io.StringIO()
         with redirect_stdout(buffer):
@@ -126,7 +143,7 @@ class CliBehaviorTests(unittest.TestCase):
 
     @patch("initra_cli.run_self_update")
     def test_self_update_invokes_update_handler(self, update_mock) -> None:
-        code = main(["--self-update"])
+        code = main(["--update"])
         self.assertEqual(code, 0)
         update_mock.assert_called_once_with("auto", None)
 
@@ -137,7 +154,7 @@ class CliBehaviorTests(unittest.TestCase):
         uninstall_mock.assert_called_once_with("auto")
 
     def test_self_update_rejects_scaffold_args(self) -> None:
-        code = main(["demo", "python", "flask", "--self-update"])
+        code = main(["demo", "python", "flask", "--update"])
         self.assertEqual(code, 1)
 
     def test_uninstall_rejects_scaffold_args(self) -> None:
@@ -153,7 +170,7 @@ class CliBehaviorTests(unittest.TestCase):
         self.assertEqual(code, 1)
 
     def test_self_update_rejects_list_flag(self) -> None:
-        code = main(["--self-update", "--list"])
+        code = main(["--update", "--list"])
         self.assertEqual(code, 1)
 
     def test_from_path_requires_self_update(self) -> None:
@@ -167,6 +184,16 @@ class CliBehaviorTests(unittest.TestCase):
     def test_uninstall_method_requires_uninstall(self) -> None:
         code = main(["--uninstall-method", "pip"])
         self.assertEqual(code, 1)
+
+    def test_missing_option_value_reports_friendly_parse_error(self) -> None:
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            code = main(["--output-dir"])
+        self.assertEqual(code, 2)
+        error = stderr.getvalue()
+        self.assertIn("Invalid command arguments", error)
+        self.assertIn("expected one argument", error)
+        self.assertIn("initra --help", error)
 
     def test_tutorial_flag_is_captured_in_spec(self) -> None:
         args = argparse.Namespace(
@@ -225,7 +252,7 @@ class CliBehaviorTests(unittest.TestCase):
             output_dir=".",
             json_output=False,
             list_stacks=False,
-            self_update=False,
+            update=False,
             update_method="auto",
             from_path=None,
             uninstall=False,

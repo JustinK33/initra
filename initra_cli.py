@@ -12,8 +12,23 @@ from initra_core import ProjectSpec, SUPPORTED_FRAMEWORKS, SUPPORTED_LANGUAGES, 
 from initra_ops import scaffold_project
 
 
+class InitraArgumentParser(argparse.ArgumentParser):
+    def error(self, message: str) -> None:
+        raise ScaffoldError(f"Invalid command arguments: {message}. Run `initra --help` or `initra man`.")
+
+
 def main(argv: Sequence[str] | None = None) -> int:
-    args = parse_args(argv)
+    incoming_argv = list(sys.argv[1:] if argv is None else argv)
+    if is_manual_command(incoming_argv):
+        print_manual()
+        return 0
+
+    try:
+        args = parse_args(incoming_argv)
+    except ScaffoldError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
     validation_error = validate_mode_args(args)
     if validation_error:
         print(f"error: {validation_error}", file=sys.stderr)
@@ -27,7 +42,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
         return 0
 
-    if args.self_update:
+    if args.update:
         try:
             run_self_update(args.update_method, args.from_path)
         except ScaffoldError as exc:
@@ -53,6 +68,72 @@ def main(argv: Sequence[str] | None = None) -> int:
     return 0
 
 
+def is_manual_command(argv: Sequence[str]) -> bool:
+    if not argv:
+        return False
+    return argv[0].lower().strip() in {"man", "manual"}
+
+
+def print_manual() -> None:
+    print(
+        """initra manual
+
+Purpose:
+  Scaffold production-ready starter projects with sensible defaults.
+
+Commands:
+  initra <name> <language> <framework>
+    Create a project directly.
+  initra
+    Start interactive prompts for missing values.
+  initra --list
+    Show supported language/framework combinations.
+  initra --update [--update-method auto|pipx|pip] [--from-path <path>]
+    Update the installed CLI.
+  initra --uninstall [--uninstall-method auto|pipx|pip]
+    Remove the installed CLI.
+  initra man
+    Show this manual.
+
+Tags / options:
+  --gh
+    Create a GitHub repository with `gh`.
+  --public
+    Make the GitHub repo public (requires --gh).
+  --open
+    Open the generated project in VS Code.
+  --ts
+    Use TypeScript for `node express` starter only.
+  -t, --tutorial
+    Add beginner-friendly explanatory comments to scaffolded files.
+  --no-install
+    Skip dependency install commands.
+  --no-git
+    Skip git init/add/commit steps.
+  --dry-run
+    Preview actions without creating files.
+  --license
+    Include an MIT LICENSE file plus language-specific metadata.
+  --output-dir <path>
+    Set the parent directory where the project folder is created.
+  --json
+    Print scaffold results as JSON.
+  --list
+    Print supported stacks and exit.
+  --update
+    Update initra.
+  --update-method auto|pipx|pip
+    Choose update backend (valid only with --update).
+  --from-path <path>
+    Update from a local clone path (valid only with --update).
+  --uninstall
+    Uninstall initra.
+  --uninstall-method auto|pipx|pip
+    Choose uninstall backend (valid only with --uninstall).
+"""
+    )
+
+
 def validate_mode_args(args: argparse.Namespace) -> str | None:
     scaffold_args_used = any(
         (
@@ -74,25 +155,25 @@ def validate_mode_args(args: argparse.Namespace) -> str | None:
     )
 
     if args.list_stacks:
-        if any((args.self_update, args.uninstall, scaffold_args_used, args.from_path, args.update_method != "auto", args.uninstall_method != "auto")):
+        if any((args.update, args.uninstall, scaffold_args_used, args.from_path, args.update_method != "auto", args.uninstall_method != "auto")):
             return "`--list` cannot be combined with other arguments."
         return None
 
-    if args.self_update:
+    if args.update:
         if any((args.uninstall, scaffold_args_used, args.list_stacks, args.uninstall_method != "auto")):
-            return "`--self-update` cannot be combined with project scaffold arguments."
+            return "`--update` cannot be combined with project scaffold arguments."
         return None
 
     if args.uninstall:
-        if any((args.self_update, scaffold_args_used, args.list_stacks, args.from_path, args.update_method != "auto")):
+        if any((args.update, scaffold_args_used, args.list_stacks, args.from_path, args.update_method != "auto")):
             return "`--uninstall` cannot be combined with other arguments."
         return None
 
     if args.from_path:
-        return "`--from-path` can only be used with `--self-update`."
+        return "`--from-path` can only be used with `--update`."
 
     if args.update_method != "auto":
-        return "`--update-method` can only be used with `--self-update`."
+        return "`--update-method` can only be used with `--update`."
 
     if args.uninstall_method != "auto":
         return "`--uninstall-method` can only be used with `--uninstall`."
@@ -101,9 +182,9 @@ def validate_mode_args(args: argparse.Namespace) -> str | None:
 
 
 def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
+    parser = InitraArgumentParser(
         prog="initra",
-        description="Scaffold a production-ready project for common web stacks.",
+        description="Scaffold a production-ready project for common web stacks. Use `initra man` for a quick manual.",
     )
     parser.add_argument("name", nargs="?", help="Project directory name")
     parser.add_argument("language", nargs="?", help="Language: python, node, ruby, java")
@@ -128,16 +209,16 @@ def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--output-dir", default=".", help="Base directory where the project folder is created")
     parser.add_argument("--json", action="store_true", dest="json_output", help="Print a machine-readable JSON summary")
     parser.add_argument("--list", action="store_true", dest="list_stacks", help="List supported languages/frameworks and exit")
-    parser.add_argument("--self-update", action="store_true", help="Update the installed initra CLI")
+    parser.add_argument("--update", action="store_true", help="Update the installed initra CLI")
     parser.add_argument(
         "--update-method",
         choices=["auto", "pipx", "pip"],
         default="auto",
-        help="Updater backend for --self-update (default: auto)",
+        help="Updater backend for --update (default: auto)",
     )
     parser.add_argument(
         "--from-path",
-        help="Local path to install from when using --self-update (useful for upgrading from a local clone)",
+        help="Local path to install from when using --update (useful for upgrading from a local clone)",
     )
     parser.add_argument("--uninstall", action="store_true", help="Uninstall the initra CLI")
     parser.add_argument(
