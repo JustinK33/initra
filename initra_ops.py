@@ -169,7 +169,7 @@ def ensure_target_directory(path: Path) -> None:
 
 def write_file(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8", newline="\n")
+    path.write_text(content, encoding="utf-8")
 
 
 def run_generation_commands(commands: Sequence[Sequence[str]], cwd: Path, collector: list[str], echo: bool) -> None:

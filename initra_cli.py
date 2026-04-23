@@ -70,6 +70,7 @@ def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--public", action="store_true", help="Create a public GitHub repo")
     parser.add_argument("--open", action="store_true", dest="open_in_vscode", help="Open the project in VS Code")
     parser.add_argument("--ts", action="store_true", help="Use TypeScript for the Express starter")
+    parser.add_argument("-t", "--tutorial", action="store_true", help="Add explanatory comments to help beginners understand the code")
     parser.add_argument("--no-install", action="store_true", help="Skip package/dependency install steps")
     parser.add_argument("--no-git", action="store_true", help="Skip git init/add/commit")
     parser.add_argument("--dry-run", action="store_true", help="Preview actions without creating files")
@@ -265,4 +266,5 @@ def build_spec(args: argparse.Namespace) -> ProjectSpec:
         no_git=bool(args.no_git),
         dry_run=bool(args.dry_run),
         output_json=bool(args.json_output),
+        tutorial=bool(getattr(args, "tutorial", False)),
     )

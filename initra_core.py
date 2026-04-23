@@ -35,6 +35,7 @@ class ProjectSpec:
     no_git: bool = False
     dry_run: bool = False
     output_json: bool = False
+    tutorial: bool = False
 
 
 @dataclass
@@ -123,13 +124,18 @@ def generate_python_plan(spec: ProjectSpec) -> FrameworkPlan:
 
     if spec.framework == "flask":
         requirements = ["Flask>=3.0,<4.0"]
+        flask_config = TUTORIAL_PYTHON_CONFIG if spec.tutorial else DEFAULT_PYTHON_CONFIG
+        flask_db = TUTORIAL_PYTHON_DB if spec.tutorial else DEFAULT_PYTHON_DB
+        flask_routes = TUTORIAL_FLASK_ROUTES if spec.tutorial else DEFAULT_FLASK_ROUTES
+        flask_app = TUTORIAL_FLASK_TEMPLATE if spec.tutorial else DEFAULT_FLASK_TEMPLATE
+        t = spec.tutorial
         files.extend([
-            ("src/config.py", load_template("python/flask/src/config.py", DEFAULT_PYTHON_CONFIG)),
-            ("src/db.py", load_template("python/flask/src/db.py", DEFAULT_PYTHON_DB)),
-            ("src/routes.py", render_template(load_template("python/flask/src/routes.py", DEFAULT_FLASK_ROUTES), {"project_name": spec.name})),
+            ("src/config.py", load_template("python/flask/src/config.py", flask_config, t)),
+            ("src/db.py", load_template("python/flask/src/db.py", flask_db, t)),
+            ("src/routes.py", render_template(load_template("python/flask/src/routes.py", flask_routes, t), {"project_name": spec.name})),
             (".env.example", DEFAULT_PYTHON_ENV),
         ])
-        files.append(("src/app.py", render_template(load_template("python/flask/app.py", DEFAULT_FLASK_TEMPLATE), {
+        files.append(("src/app.py", render_template(load_template("python/flask/app.py", flask_app, t), {
             "project_name": spec.name,
             "module_name": module_name,
         })))
@@ -149,17 +155,23 @@ def generate_python_plan(spec: ProjectSpec) -> FrameworkPlan:
         ]
     elif spec.framework == "fastapi":
         requirements = ["fastapi>=0.110,<1.0", "uvicorn[standard]>=0.30,<1.0"]
+        fastapi_config = TUTORIAL_PYTHON_CONFIG if spec.tutorial else DEFAULT_PYTHON_CONFIG
+        fastapi_db = TUTORIAL_PYTHON_DB if spec.tutorial else DEFAULT_PYTHON_DB
+        fastapi_health = TUTORIAL_FASTAPI_HEALTH_ROUTES if spec.tutorial else DEFAULT_FASTAPI_HEALTH_ROUTES
+        fastapi_users = TUTORIAL_FASTAPI_USERS_ROUTES if spec.tutorial else DEFAULT_FASTAPI_USERS_ROUTES
+        fastapi_main = TUTORIAL_FASTAPI_TEMPLATE if spec.tutorial else DEFAULT_FASTAPI_TEMPLATE
+        t = spec.tutorial
         files.extend([
             ("src/core/__init__.py", ""),
-            ("src/core/config.py", load_template("python/fastapi/src/core/config.py", DEFAULT_PYTHON_CONFIG)),
-            ("src/db.py", load_template("python/fastapi/src/db.py", DEFAULT_PYTHON_DB)),
+            ("src/core/config.py", load_template("python/fastapi/src/core/config.py", fastapi_config, t)),
+            ("src/db.py", load_template("python/fastapi/src/db.py", fastapi_db, t)),
             ("src/api/__init__.py", ""),
             ("src/api/routes/__init__.py", ""),
-            ("src/api/routes/health.py", render_template(load_template("python/fastapi/src/api/routes/health.py", DEFAULT_FASTAPI_HEALTH_ROUTES), {"project_name": spec.name})),
-            ("src/api/routes/users.py", render_template(load_template("python/fastapi/src/api/routes/users.py", DEFAULT_FASTAPI_USERS_ROUTES), {"project_name": spec.name})),
+            ("src/api/routes/health.py", render_template(load_template("python/fastapi/src/api/routes/health.py", fastapi_health, t), {"project_name": spec.name})),
+            ("src/api/routes/users.py", render_template(load_template("python/fastapi/src/api/routes/users.py", fastapi_users, t), {"project_name": spec.name})),
             (".env.example", DEFAULT_PYTHON_ENV),
         ])
-        files.append(("src/main.py", render_template(load_template("python/fastapi/main.py", DEFAULT_FASTAPI_TEMPLATE), {
+        files.append(("src/main.py", render_template(load_template("python/fastapi/main.py", fastapi_main, t), {
             "project_name": spec.name,
             "module_name": module_name,
         })))
@@ -194,13 +206,18 @@ def generate_python_plan(spec: ProjectSpec) -> FrameworkPlan:
         notes = ["The Django project is generated with the official Django CLI."]
     else:
         requirements = ["aiohttp>=3.10,<4.0"]
+        aiohttp_config = TUTORIAL_PYTHON_CONFIG if spec.tutorial else DEFAULT_PYTHON_CONFIG
+        aiohttp_db = TUTORIAL_PYTHON_DB if spec.tutorial else DEFAULT_PYTHON_DB
+        aiohttp_routes = TUTORIAL_AIOHTTP_ROUTES if spec.tutorial else DEFAULT_AIOHTTP_ROUTES
+        aiohttp_main = TUTORIAL_AIOHTTP_TEMPLATE if spec.tutorial else DEFAULT_AIOHTTP_TEMPLATE
+        t = spec.tutorial
         files.extend([
-            ("src/config.py", load_template("python/aiohttp/src/config.py", DEFAULT_PYTHON_CONFIG)),
-            ("src/db.py", load_template("python/aiohttp/src/db.py", DEFAULT_PYTHON_DB)),
-            ("src/routes.py", render_template(load_template("python/aiohttp/src/routes.py", DEFAULT_AIOHTTP_ROUTES), {"project_name": spec.name})),
+            ("src/config.py", load_template("python/aiohttp/src/config.py", aiohttp_config, t)),
+            ("src/db.py", load_template("python/aiohttp/src/db.py", aiohttp_db, t)),
+            ("src/routes.py", render_template(load_template("python/aiohttp/src/routes.py", aiohttp_routes, t), {"project_name": spec.name})),
             (".env.example", DEFAULT_PYTHON_ENV),
         ])
-        files.append(("src/main.py", render_template(load_template("python/aiohttp/main.py", DEFAULT_AIOHTTP_TEMPLATE), {
+        files.append(("src/main.py", render_template(load_template("python/aiohttp/main.py", aiohttp_main, t), {
             "project_name": spec.name,
             "module_name": module_name,
         })))
@@ -266,7 +283,7 @@ def generate_node_plan(spec: ProjectSpec) -> FrameworkPlan:
         )
 
     if spec.framework == "koa":
-        files = build_simple_node_files(spec.name, "koa")
+        files = build_simple_node_files(spec.name, "koa", spec.tutorial)
         post_commands = [] if spec.no_install else [["npm", "install"]]
         install_text = "Install dependencies with `npm install`." if not spec.no_install else "Dependency installation was skipped due to `--no-install`."
         return FrameworkPlan(
@@ -280,7 +297,7 @@ def generate_node_plan(spec: ProjectSpec) -> FrameworkPlan:
         )
 
     use_ts = spec.framework == "express-ts"
-    files = build_simple_node_files(spec.name, "express-ts" if use_ts else "express")
+    files = build_simple_node_files(spec.name, "express-ts" if use_ts else "express", spec.tutorial)
 
     post_commands = [] if spec.no_install else [["npm", "install"]]
     install_text = "Install dependencies with `npm install`." if not spec.no_install else "Dependency installation was skipped due to `--no-install`."
@@ -298,9 +315,10 @@ def generate_node_plan(spec: ProjectSpec) -> FrameworkPlan:
 
 def generate_ruby_plan(spec: ProjectSpec) -> FrameworkPlan:
     if spec.framework == "sinatra":
+        sinatra_app = TUTORIAL_SINATRA_APP if spec.tutorial else DEFAULT_SINATRA_APP
         files = [
             ("Gemfile", load_template("ruby/sinatra/Gemfile", DEFAULT_SINATRA_GEMFILE)),
-            ("app.rb", render_template(load_template("ruby/sinatra/app.rb", DEFAULT_SINATRA_APP), {"project_name": spec.name})),
+            ("app.rb", render_template(load_template("ruby/sinatra/app.rb", sinatra_app), {"project_name": spec.name})),
             ("config.ru", load_template("ruby/sinatra/config.ru", DEFAULT_SINATRA_RACKUP)),
             ("lib/config.rb", load_template("ruby/sinatra/lib/config.rb", DEFAULT_SINATRA_CONFIG)),
             ("lib/db.rb", load_template("ruby/sinatra/lib/db.rb", DEFAULT_SINATRA_DB)),
@@ -337,12 +355,13 @@ def generate_ruby_plan(spec: ProjectSpec) -> FrameworkPlan:
 
 def generate_java_plan(spec: ProjectSpec) -> FrameworkPlan:
     if spec.framework == "javalin":
+        javalin_app = TUTORIAL_JAVALIN_APP if spec.tutorial else DEFAULT_JAVALIN_APP
         files = [
             ("pom.xml", render_template(load_template("java/javalin/pom.xml", build_javalin_pom(spec.name)), {"project_name": spec.name})),
             ("Dockerfile", render_template(load_template("java/javalin/Dockerfile", DEFAULT_JAVALIN_DOCKERFILE), {"project_name": spec.name})),
             (".env.example", load_template("java/javalin/.env.example", DEFAULT_JAVA_ENV)),
             ("src/main/resources/application.properties", render_template(load_template("java/javalin/src/main/resources/application.properties", DEFAULT_JAVALIN_PROPERTIES), {"project_name": spec.name})),
-            ("src/main/java/com/example/App.java", render_template(load_template("java/javalin/src/main/java/com/example/App.java", DEFAULT_JAVALIN_APP), {"project_name": spec.name})),
+            ("src/main/java/com/example/App.java", render_template(load_template("java/javalin/src/main/java/com/example/App.java", javalin_app), {"project_name": spec.name})),
             ("src/main/java/com/example/config/AppConfig.java", load_template("java/javalin/src/main/java/com/example/config/AppConfig.java", DEFAULT_JAVALIN_CONFIG)),
             ("src/main/java/com/example/routes/HealthRoutes.java", load_template("java/javalin/src/main/java/com/example/routes/HealthRoutes.java", DEFAULT_JAVALIN_HEALTH_ROUTES)),
             ("src/main/java/com/example/routes/UserRoutes.java", load_template("java/javalin/src/main/java/com/example/routes/UserRoutes.java", DEFAULT_JAVALIN_USER_ROUTES)),
@@ -440,9 +459,9 @@ def build_express_package_json(project_name: str, use_ts: bool) -> str:
     return json.dumps(data, indent=2) + "\n"
 
 
-def build_simple_node_files(project_name: str, variant: str) -> list[tuple[str, str]]:
+def build_simple_node_files(project_name: str, variant: str, tutorial: bool = False) -> list[tuple[str, str]]:
     if variant == "koa":
-        return build_simple_koa_files(project_name)
+        return build_simple_koa_files(project_name, tutorial)
 
     is_ts = variant == "express-ts"
     template_root = "node/express-ts" if is_ts else "node/express-js"
@@ -460,22 +479,22 @@ def build_simple_node_files(project_name: str, variant: str) -> list[tuple[str, 
     utils_file = "src/utils/validation.ts" if is_ts else "src/utils/validation.js"
     tests_file = "tests/app.test.ts" if is_ts else "tests/app.test.js"
 
-    package_json = build_express_package_json(project_name, is_ts)
-    if variant == "koa":
-        package_json = build_koa_package_json(project_name)
+    # Select tutorial or regular templates
+    server_template = TUTORIAL_EXPRESS_SERVER if tutorial else (DEFAULT_NODE_SERVER_TEMPLATE_TS if is_ts else DEFAULT_NODE_SERVER_TEMPLATE_JS)
+    health_template = TUTORIAL_EXPRESS_HEALTH_ROUTE if tutorial else (DEFAULT_NODE_HEALTH_ROUTE_TS if is_ts else DEFAULT_NODE_HEALTH_ROUTE_JS)
 
     files = [
-        ("package.json", package_json),
+        ("package.json", build_express_package_json(project_name, is_ts)),
         (".env.example", DEFAULT_NODE_ENV_EXAMPLE),
         ("Dockerfile", DEFAULT_NODE_DOCKERFILE),
         (".dockerignore", DEFAULT_NODE_DOCKERIGNORE),
         (".eslintrc.json", DEFAULT_NODE_ESLINTRC),
         (".prettierrc", DEFAULT_NODE_PRETTIERRC),
         (app_file, render_template(load_template(f"{template_root}/{app_file}", DEFAULT_NODE_APP_TEMPLATE_TS if is_ts else DEFAULT_NODE_APP_TEMPLATE_JS), {"project_name": project_name})),
-        (server_file, render_template(load_template(f"{template_root}/{server_file}", DEFAULT_NODE_SERVER_TEMPLATE_TS if is_ts else DEFAULT_NODE_SERVER_TEMPLATE_JS), {"project_name": project_name})),
+        (server_file, render_template(load_template(f"{template_root}/{server_file}", server_template), {"project_name": project_name})),
         (config_file, load_template(f"{template_root}/{config_file}", DEFAULT_NODE_CONFIG_TS if is_ts else DEFAULT_NODE_CONFIG_JS)),
         (route_file, render_template(load_template(f"{template_root}/{route_file}", DEFAULT_NODE_ROUTE_INDEX_TS if is_ts else DEFAULT_NODE_ROUTE_INDEX_JS), {"project_name": project_name})),
-        (health_file, render_template(load_template(f"{template_root}/{health_file}", DEFAULT_NODE_HEALTH_ROUTE_TS if is_ts else DEFAULT_NODE_HEALTH_ROUTE_JS), {"project_name": project_name})),
+        (health_file, render_template(load_template(f"{template_root}/{health_file}", health_template), {"project_name": project_name})),
         (user_file, render_template(load_template(f"{template_root}/{user_file}", DEFAULT_NODE_USERS_ROUTE_TS if is_ts else DEFAULT_NODE_USERS_ROUTE_JS), {"project_name": project_name})),
         (controller_file, render_template(load_template(f"{template_root}/{controller_file}", DEFAULT_NODE_USER_CONTROLLER_TS if is_ts else DEFAULT_NODE_USER_CONTROLLER_JS), {"project_name": project_name})),
         (service_file, render_template(load_template(f"{template_root}/{service_file}", DEFAULT_NODE_USER_SERVICE_TS if is_ts else DEFAULT_NODE_USER_SERVICE_JS), {"project_name": project_name})),
@@ -490,8 +509,13 @@ def build_simple_node_files(project_name: str, variant: str) -> list[tuple[str, 
     return files
 
 
-def build_simple_koa_files(project_name: str) -> list[tuple[str, str]]:
+def build_simple_koa_files(project_name: str, tutorial: bool = False) -> list[tuple[str, str]]:
     template_root = "node/koa"
+
+    # Select tutorial or regular templates
+    server_template = TUTORIAL_KOA_SERVER if tutorial else DEFAULT_KOA_SIMPLE_SERVER
+    health_template = TUTORIAL_KOA_HEALTH_ROUTE if tutorial else DEFAULT_KOA_SIMPLE_HEALTH_ROUTE
+
     return [
         ("package.json", build_koa_package_json(project_name)),
         (".env.example", DEFAULT_NODE_ENV_EXAMPLE),
@@ -500,10 +524,10 @@ def build_simple_koa_files(project_name: str) -> list[tuple[str, str]]:
         (".eslintrc.json", DEFAULT_NODE_ESLINTRC),
         (".prettierrc", DEFAULT_NODE_PRETTIERRC),
         ("src/app.js", render_template(load_template(f"{template_root}/src/app.js", DEFAULT_KOA_SIMPLE_APP), {"project_name": project_name})),
-        ("src/server.js", render_template(load_template(f"{template_root}/src/server.js", DEFAULT_KOA_SIMPLE_SERVER), {"project_name": project_name})),
+        ("src/server.js", render_template(load_template(f"{template_root}/src/server.js", server_template), {"project_name": project_name})),
         ("src/config/index.js", load_template(f"{template_root}/src/config/index.js", DEFAULT_NODE_CONFIG_JS)),
         ("src/routes/index.js", render_template(load_template(f"{template_root}/src/routes/index.js", DEFAULT_KOA_SIMPLE_ROUTE_INDEX), {"project_name": project_name})),
-        ("src/routes/health.js", render_template(load_template(f"{template_root}/src/routes/health.js", DEFAULT_KOA_SIMPLE_HEALTH_ROUTE), {"project_name": project_name})),
+        ("src/routes/health.js", render_template(load_template(f"{template_root}/src/routes/health.js", health_template), {"project_name": project_name})),
         ("src/routes/users.js", render_template(load_template(f"{template_root}/src/routes/users.js", DEFAULT_KOA_SIMPLE_USERS_ROUTE), {"project_name": project_name})),
         ("src/controllers/userController.js", render_template(load_template(f"{template_root}/src/controllers/userController.js", DEFAULT_KOA_SIMPLE_USER_CONTROLLER), {"project_name": project_name})),
         ("src/services/userService.js", render_template(load_template(f"{template_root}/src/services/userService.js", DEFAULT_KOA_SIMPLE_USER_SERVICE), {"project_name": project_name})),
@@ -2070,10 +2094,8 @@ DEFAULT_JAVALIN_HEALTH_IT = textwrap.dedent(
     import com.example.routes.HealthRoutes;
     import io.javalin.Javalin;
     import io.javalin.testtools.JavalinTest;
-    import java.net.http.HttpClient;
-    import java.net.http.HttpRequest;
-    import java.net.http.HttpResponse;
     import org.junit.jupiter.api.Test;
+    import okhttp3.Response;
 
     class HealthRoutesIntegrationTest {
         @Test
@@ -2086,9 +2108,9 @@ DEFAULT_JAVALIN_HEALTH_IT = textwrap.dedent(
             HealthRoutes.register(app, healthController);
 
             JavalinTest.test(app, (server, client) -> {
-                HttpRequest request = HttpRequest.newBuilder(server.origin().resolve("/health")).GET().build();
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                assertEquals(200, response.statusCode());
+                try (Response response = client.get("/health")) {
+                    assertEquals(200, response.code());
+                }
             });
         }
     }
@@ -2112,9 +2134,8 @@ DEFAULT_JAVALIN_USER_IT = textwrap.dedent(
     import com.example.services.UserService;
     import io.javalin.Javalin;
     import io.javalin.testtools.JavalinTest;
-    import java.net.http.HttpRequest;
-    import java.net.http.HttpResponse;
     import org.junit.jupiter.api.Test;
+    import okhttp3.Response;
 
     class UserRoutesIntegrationTest {
         @Test
@@ -2129,18 +2150,14 @@ DEFAULT_JAVALIN_USER_IT = textwrap.dedent(
             UserRoutes.register(app, controller);
 
             JavalinTest.test(app, (server, client) -> {
-                HttpRequest createRequest = HttpRequest.newBuilder(server.origin().resolve("/users"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString("{\"name\":\"Taylor\",\"email\":\"taylor@example.com\"}"))
-                    .build();
+                try (Response createResponse = client.post("/users", "{\"name\":\"Taylor\",\"email\":\"taylor@example.com\"}")) {
+                    assertEquals(201, createResponse.code());
+                }
 
-                HttpResponse<String> createResponse = client.send(createRequest, HttpResponse.BodyHandlers.ofString());
-                assertEquals(201, createResponse.statusCode());
-
-                HttpRequest listRequest = HttpRequest.newBuilder(server.origin().resolve("/users")).GET().build();
-                HttpResponse<String> listResponse = client.send(listRequest, HttpResponse.BodyHandlers.ofString());
-                assertEquals(200, listResponse.statusCode());
-                assertTrue(listResponse.body().contains("Taylor"));
+                try (Response listResponse = client.get("/users")) {
+                    assertEquals(200, listResponse.code());
+                    assertTrue(listResponse.body().string().contains("Taylor"));
+                }
             });
         }
     }
@@ -3100,7 +3117,12 @@ DEFAULT_KOA_SIMPLE_TEST = textwrap.dedent(
 ).strip() + "\n"
 
 
-def load_template(relative_path: str, fallback: str) -> str:
+def load_template(relative_path: str, fallback: str, tutorial: bool = False) -> str:
+    if tutorial:
+        # Try tutorial version first (e.g., python/fastapi/tutorial/main.py)
+        tutorial_candidate = TEMPLATES_DIR / "tutorial" / relative_path
+        if tutorial_candidate.exists():
+            return tutorial_candidate.read_text(encoding="utf-8")
     candidate = TEMPLATES_DIR / relative_path
     if candidate.exists():
         return candidate.read_text(encoding="utf-8")
@@ -3249,3 +3271,639 @@ def venv_executable(venv_path: Path, executable: str) -> str:
     if platform.system() == "Windows":
         return str(venv_path / "Scripts" / f"{executable}.exe")
     return str(venv_path / "bin" / executable)
+
+
+# Tutorial-mode templates with explanatory comments for beginners
+TUTORIAL_FASTAPI_TEMPLATE = textwrap.dedent(
+    '''
+    """Main application entry point for FastAPI."""
+    from fastapi import FastAPI
+
+    # Import route handlers (these define your API endpoints)
+    from src.api.routes.health import router as health_router
+    from src.api.routes.users import router as users_router
+
+    # Create the FastAPI application instance
+    # FastAPI is the web framework - it handles HTTP requests and responses
+    app = FastAPI(title="{{project_name}}")
+
+    # Register route handlers with the application
+    # Each router contains related endpoints grouped together
+    app.include_router(health_router)
+    app.include_router(users_router)
+
+
+    @app.get("/readyz")
+    def ready() -> dict[str, str]:
+        """Health check endpoint - returns basic status info."""
+        return {"status": "ready", "project": "{{project_name}}"}
+    '''
+).strip() + "\n"
+
+
+TUTORIAL_FLASK_TEMPLATE = textwrap.dedent(
+    '''
+    """Main application entry point for Flask."""
+    from flask import Flask
+
+    # Import blueprint (a blueprint groups related routes together)
+    from src.routes import health_bp
+
+
+    def create_app() -> Flask:
+        """Application factory pattern - creates and configures the Flask app."""
+        app = Flask(__name__)
+
+        # Register the blueprint to add its routes to the app
+        app.register_blueprint(health_bp)
+
+        return app
+
+
+    # Create the app instance - this is what uvicorn/gunicorn will run
+    app = create_app()
+
+
+    if __name__ == "__main__":
+        # This runs the development server when you execute `python src/app.py`
+        app.run(debug=True)
+    '''
+).strip() + "\n"
+
+
+TUTORIAL_AIOHTTP_TEMPLATE = textwrap.dedent(
+    '''
+    """Main application entry point for aiohttp."""
+    from aiohttp import web
+
+    # Import route handlers
+    from src.routes import health_routes, user_routes
+    from src.config import settings
+
+
+    def create_app() -> web.Application:
+        """Creates and configures the aiohttp application."""
+        app = web.Application()
+
+        # Add route handlers - these define your API endpoints
+        # Each handler is mapped to a URL path and HTTP method
+        app.router.add_routes(health_routes)
+        app.router.add_routes(user_routes)
+
+        return app
+
+
+    # Create the app instance
+    app = create_app()
+
+
+    if __name__ == "__main__":
+        # Run the development server on localhost:8080
+        web.run_app(app, host="0.0.0.0", port=8080)
+    '''
+).strip() + "\n"
+
+
+TUTORIAL_PYTHON_CONFIG = textwrap.dedent(
+    '''
+    """Configuration settings for the application.
+
+    This module uses environment variables to make the app flexible:
+    - APP_ENV: controls whether you're in development, staging, or production
+    - DATABASE_URL: specifies where your database is located
+    """
+    import os
+    from dataclasses import dataclass
+
+
+    @dataclass(frozen=True)
+    class Settings:
+        """Settings class - frozen=True makes it immutable (read-only)."""
+        # Get from environment, default to 'development' if not set
+        env: str = os.getenv("APP_ENV", "development")
+        db_url: str = os.getenv("DATABASE_URL", "sqlite:///data/app.db")
+
+
+    # Create a single instance that all modules can import
+    settings = Settings()
+    '''
+).strip() + "\n"
+
+
+TUTORIAL_PYTHON_DB = textwrap.dedent(
+    '''
+    """Database connection utilities.
+
+    This module provides a simple way to connect to SQLite.
+    SQLite is great for learning and development - no server needed!
+    """
+    from pathlib import Path
+    import sqlite3
+
+    from src.config import settings
+
+
+    def _sqlite_path() -> Path:
+        """Extract file path from DATABASE_URL (e.g., sqlite:///data/app.db -> data/app.db)."""
+        raw = settings.db_url
+        if raw.startswith("sqlite:///"):
+            return Path(raw.replace("sqlite:///", "", 1))
+        return Path("data/app.db")
+
+
+    def get_connection() -> sqlite3.Connection:
+        """Creates a connection to the SQLite database.
+
+        Returns:
+            sqlite3.Connection: A connection object used to execute queries
+
+        Usage:
+            conn = get_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM users")
+        """
+        db_path = _sqlite_path()
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        connection = sqlite3.connect(db_path)
+        connection.row_factory = sqlite3.Row
+        return connection
+    '''
+).strip() + "\n"
+
+
+TUTORIAL_FLASK_ROUTES = textwrap.dedent(
+    '''
+    """Route handlers for Flask application.
+
+    A Blueprint is a way to organize related routes together.
+    Think of it like a chapter in a book - it groups related pages.
+    """
+    from flask import Blueprint, jsonify, request
+
+    from src.config import settings
+
+
+    # Create a blueprint named 'health' - all routes here start with /health (if prefixed)
+    health_bp = Blueprint("health", __name__)
+
+    # In-memory storage for demo purposes
+    # In a real app, you'd use a database instead
+    users: list[dict[str, object]] = []
+    next_id = 1
+
+
+    @health_bp.get("/")
+    def health() -> tuple[dict[str, str], int]:
+        """Health check endpoint - returns status and environment info."""
+        return jsonify(status="ok", project="{{project_name}}", env=settings.env), 200
+        # 200 is the HTTP status code for "OK"
+
+
+    @health_bp.get("/users")
+    def list_users() -> tuple[dict[str, object], int]:
+        """GET /users - List all users in the system."""
+        return jsonify(users=users), 200
+
+
+    @health_bp.get("/users/<int:user_id>")
+    def get_user(user_id: int) -> tuple[dict[str, object], int]:
+        """GET /users/:id - Get a specific user by ID.
+
+        The <int:user_id> part tells Flask to:
+        1. Match URLs like /users/1, /users/42
+        2. Convert the ID to an integer
+        3. Pass it to the function as user_id
+        """
+        for user in users:
+            if user["id"] == user_id:
+                return jsonify(user), 200
+        return jsonify(error="User not found"), 404
+        # 404 is "Not Found" - the user doesn't exist
+
+
+    @health_bp.post("/users")
+    def create_user() -> tuple[dict[str, object], int]:
+        """POST /users - Create a new user.
+
+        request.get_json() extracts JSON data from the request body.
+        Example: {"name": "Alice"} becomes {"name": "Alice"}
+        """
+        global next_id
+        payload = request.get_json(silent=True) or {}
+        name = payload.get("name", "Anonymous")
+
+        user = {"id": next_id, "name": name}
+        users.append(user)
+        next_id += 1
+
+        return jsonify(user), 201
+        # 201 is "Created" - a new resource was successfully created
+    '''
+).strip() + "\n"
+
+
+TUTORIAL_FASTAPI_HEALTH_ROUTES = textwrap.dedent(
+    '''
+    """Health check routes for FastAPI application.
+
+    FastAPI route handlers are defined with decorators like @app.get().
+    The decorator specifies the HTTP method (GET, POST, etc.) and URL path.
+    """
+    from fastapi import APIRouter, HTTPException
+
+    from src.core.config import settings
+
+
+    # APIRouter groups related routes - think of it like a chapter for API endpoints
+    router = APIRouter(tags=["health"])
+
+
+    @router.get("/")
+    def health() -> dict[str, str]:
+        """Health check endpoint - returns status and current environment.
+
+        Returns:
+            dict: A dictionary that FastAPI automatically converts to JSON
+        """
+        return {"status": "ok", "env": settings.env}
+
+
+    @router.get("/readyz")
+    def ready() -> dict[str, str]:
+        """Readiness check - used by load balancers to know if the app is ready."""
+        return {"status": "ready", "project": "{{project_name}}"}
+    '''
+).strip() + "\n"
+
+
+TUTORIAL_FASTAPI_USERS_ROUTES = textwrap.dedent(
+    '''
+    """User management routes for FastAPI application.
+
+    FastAPI automatically handles:
+    - Request body validation (using Pydantic models)
+    - Response serialization (converting Python to JSON)
+    - OpenAPI/Swagger documentation
+    """
+    from fastapi import APIRouter, HTTPException
+
+    from src.core.config import settings
+
+
+    router = APIRouter(tags=["users"])
+
+    # In-memory storage (in a real app, use a database)
+    users_db: list[dict] = []
+    next_id = 1
+
+
+    @router.get("/users")
+    def list_users() -> dict[str, list]:
+        """GET /users - Retrieve all users.
+
+        The -> dict[str, list] is a type hint that FastAPI uses for:
+        1. Validating the response matches this shape
+        2. Generating OpenAPI documentation
+        """
+        return {"users": users_db}
+
+
+    @router.get("/users/{user_id}")
+    def get_user(user_id: int) -> dict:
+        """GET /users/:id - Get a specific user by ID.
+
+        FastAPI automatically converts the path parameter to int.
+        If it can't convert (e.g., /users/abc), it returns a 422 error.
+        """
+        for user in users_db:
+            if user["id"] == user_id:
+                return user
+        raise HTTPException(status_code=404, detail="User not found")
+        # HTTPException is FastAPI's way to return error responses
+
+
+    @router.post("/users")
+    def create_user(name: str) -> dict:
+        """POST /users - Create a new user.
+
+        The 'name: str' parameter comes from the request body or query string.
+        FastAPI validates the type and returns 422 if invalid.
+        """
+        global next_id
+        user = {"id": next_id, "name": name}
+        users_db.append(user)
+        next_id += 1
+        return user
+    '''
+).strip() + "\n"
+
+
+TUTORIAL_AIOHTTP_ROUTES = textwrap.dedent(
+    '''
+    """Route handlers for aiohttp application.
+
+    aiohttp uses plain functions as handlers, decorated with HTTP method names.
+    Each handler receives the request object and returns a response.
+    """
+    from aiohttp import web
+
+    from src.config import settings
+
+
+    # Define routes as a list - maps URL paths to handler functions
+    health_routes = [
+        web.get("/", health),
+        web.get("/readyz", ready),
+    ]
+
+    user_routes = [
+        web.get("/users", list_users),
+        web.get("/users/{user_id}", get_user),
+        web.post("/users", create_user),
+    ]
+
+    # In-memory storage (use a database in production)
+    users_db: list[dict] = []
+    next_id = 1
+
+
+    async def health(request: web.Request) -> web.Response:
+        """Health check endpoint.
+
+        Handlers are async functions - they can handle many concurrent requests.
+        The 'request' parameter contains info about the HTTP request.
+        """
+        return web.json_response({"status": "ok", "env": settings.env})
+
+
+    async def ready(request: web.Request) -> web.Response:
+        """Readiness check for load balancers."""
+        return web.json_response({"status": "ready"})
+
+
+    async def list_users(request: web.Request) -> web.Response:
+        """GET /users - List all users."""
+        return web.json_response({"users": users_db})
+
+
+    async def get_user(request: web.Request) -> web.Response:
+        """GET /users/:id - Get a specific user.
+
+        request.match_info extracts path parameters defined with {}.
+        """
+        user_id = int(request.match_info["user_id"])
+        for user in users_db:
+            if user["id"] == user_id:
+                return web.json_response(user)
+        return web.json_response({"error": "User not found"}, status=404)
+
+
+    async def create_user(request: web.Request) -> web.Response:
+        """POST /users - Create a new user.
+
+        await request.json() asynchronously reads the request body.
+        """
+        global next_id
+        data = await request.json()
+        name = data.get("name", "Anonymous")
+
+        user = {"id": next_id, "name": name}
+        users_db.append(user)
+        next_id += 1
+
+        return web.json_response(user, status=201)
+    '''
+).strip() + "\n"
+
+
+TUTORIAL_EXPRESS_SERVER = textwrap.dedent(
+    '''
+    """Main server file for Express/Node.js application.
+
+    Express is the most popular Node.js web framework.
+    It handles routing (matching URLs to handlers) and middleware.
+    """
+    const express = require("express");
+
+    # Import route handlers
+    const healthRoutes = require("./routes/health");
+    const userRoutes = require("./routes/users");
+
+    # Create an Express application instance
+    const app = express();
+
+    # Middleware: functions that run before your route handlers
+    # express.json() parses JSON request bodies
+    app.use(express.json());
+
+    # Register route handlers
+    # Each router handles a group of related endpoints
+    app.use("/", healthRoutes);
+    app.use("/api", userRoutes);
+
+    # Start the server
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+    '''
+).strip() + "\n"
+
+
+TUTORIAL_KOA_SERVER = textwrap.dedent(
+    '''
+    """Main server file for Koa/Node.js application.
+
+    Koa is a lightweight web framework by the Express team.
+    It uses async/await and has a smaller core than Express.
+    """
+    const Koa = require("koa");
+    const bodyParser = require("koa-bodyparser");
+
+    # Import route handlers
+    const healthRoutes = require("./routes/health");
+    const userRoutes = require("./routes/users");
+
+    # Create a Koa application instance
+    const app = new Koa();
+
+    # Middleware: Koa uses a "context" (ctx) object passed through each middleware
+    # ctx.request has request info, ctx.response has response info
+
+    # Error handling middleware
+    app.use(async (ctx, next) => {
+      try {
+        await next();
+      } catch (err) {
+        ctx.status = err.status || 500;
+        ctx.body = { error: err.message };
+      }
+    });
+
+    # Body parser middleware - parses JSON request bodies
+    app.use(bodyParser());
+
+    # Register route handlers
+    app.use(healthRoutes.routes());
+    app.use(userRoutes.routes());
+
+    # Start the server
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+    '''
+).strip() + "\n"
+
+
+TUTORIAL_EXPRESS_HEALTH_ROUTE = textwrap.dedent(
+    '''
+    """Health check routes for Express application.
+
+    Express routes follow the pattern: app.METHOD(PATH, HANDLER)
+    - METHOD: get, post, put, delete, etc.
+    - PATH: the URL path to match
+    - HANDLER: function that processes the request
+    """
+    const express = require("express");
+    const router = express.Router();
+
+    # GET / - Health check endpoint
+    router.get("/", (req, res) => {
+      # res.json() automatically converts objects to JSON and sets Content-Type
+      res.json({ status: "ok", project: "{{project_name}}" });
+    });
+
+    # GET /readyz - Readiness check for load balancers
+    router.get("/readyz", (req, res) => {
+      res.json({ status: "ready" });
+    });
+
+    module.exports = router;
+    '''
+).strip() + "\n"
+
+
+TUTORIAL_KOA_HEALTH_ROUTE = textwrap.dedent(
+    '''
+    """Health check routes for Koa application.
+
+    Koa routes use @koa/router library.
+    The handler receives (ctx, next):
+    - ctx: context object with request/response info
+    - next: function to call the next middleware
+    """
+    const Router = require("@koa/router");
+
+    const router = new Router();
+
+    # GET / - Health check endpoint
+    router.get("/", (ctx, next) => {
+      # ctx.body sets the response body (equivalent to res.json())
+      ctx.body = { status: "ok", project: "{{project_name}}" };
+    });
+
+    # GET /readyz - Readiness check
+    router.get("/readyz", (ctx, next) => {
+      ctx.body = { status: "ready" };
+    });
+
+    module.exports = router;
+    '''
+).strip() + "\n"
+
+
+TUTORIAL_SINATRA_APP = textwrap.dedent(
+    '''
+    """Main Sinatra application file.
+
+    Sinatra is a Ruby DSL for creating web applications.
+    Routes are defined with HTTP method names (get, post, etc.).
+    """
+    require "sinatra"
+    require "json"
+
+    # set :bind, "0.0.0.0"  # Uncomment to listen on all interfaces
+    set :port, 9292
+
+    # GET / - Health check endpoint
+    get "/" do
+      content_type :json
+      { status: "ok", project: "{{project_name}}" }.to_json
+    end
+
+    # GET /readyz - Readiness check
+    get "/readyz" do
+      content_type :json
+      { status: "ready" }.to_json
+    end
+
+    # In-memory user storage (use a database in production)
+    USERS = []
+
+    # GET /users - List all users
+    get "/users" do
+      content_type :json
+      { users: USERS }.to_json
+    end
+
+    # GET /users/:id - Get a specific user
+    get "/users/:id" do
+      user = USERS.find { |u| u["id"] == params[:id].to_i }
+      if user
+        user.to_json
+      else
+        status 404
+        { error: "User not found" }.to_json
+      end
+    end
+
+    # POST /users - Create a new user
+    post "/users" do
+      data = JSON.parse(request.body.read) rescue {}
+      user = { id: USERS.length + 1, name: data["name"] || "Anonymous" }
+      USERS << user
+      status 201
+      user.to_json
+    end
+    '''
+).strip() + "\n"
+
+
+TUTORIAL_JAVALIN_APP = textwrap.dedent(
+    '''
+    """Main application class for Javalin.
+
+    Javalin is a lightweight Java/Kotlin web framework.
+    It combines the simplicity of Express (JS) with Java's type safety.
+    """
+    package com.example;
+
+    import io.javalin.Javalin;
+    import io.javalin.http.staticfiles.Location;
+    import com.example.config.AppConfig;
+    import com.example.routes.HealthRoutes;
+    import com.example.routes.UserRoutes;
+
+    public class App {
+        public static void main(String[] args) {
+            # Create and configure the Javalin app
+            Javalin app = Javalin.create(config -> {
+                # Serve static files from /public if needed
+                config.staticFiles.add("/public", Location.CLASSPATH);
+            });
+
+            # Configure JSON serialization
+            AppConfig.configure(app);
+
+            # Register route handlers
+            # Each Routes class adds related endpoints to the app
+            HealthRoutes.register(app);
+            UserRoutes.register(app);
+
+            # Start the server on port 8080
+            app.start(8080);
+        }
+    }
+    '''
+).strip() + "\n"
