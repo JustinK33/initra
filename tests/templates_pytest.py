@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from initra_core import ProjectSpec, generate_framework_plan, render_gitignore
+from initra.core import ProjectSpec, generate_framework_plan, render_gitignore
 
 
 STACK_CASES = [

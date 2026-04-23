@@ -5,8 +5,8 @@ import unittest
 from pathlib import Path
 from typing import cast
 
-from initra_core import ProjectSpec
-from initra_ops import scaffold_project
+from initra.core import ProjectSpec
+from initra.ops import scaffold_project
 
 
 class OpsTests(unittest.TestCase):

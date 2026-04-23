@@ -8,8 +8,8 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
-from initra_cli import build_spec, fill_missing_args_interactively, main, validate_mode_args
-from initra_core import ProjectSpec, ScaffoldError, format_supported_stacks, generate_framework_plan, sanitize_project_name
+from initra.cli import build_spec, fill_missing_args_interactively, main, validate_mode_args
+from initra.core import ProjectSpec, ScaffoldError, format_supported_stacks, generate_framework_plan, sanitize_project_name
 
 
 class CliBehaviorTests(unittest.TestCase):
@@ -141,13 +141,13 @@ class CliBehaviorTests(unittest.TestCase):
         self.assertTrue(parsed["dry_run"])
         self.assertEqual(parsed["framework"], "koa")
 
-    @patch("initra_cli.run_self_update")
+    @patch("initra.cli.run_self_update")
     def test_self_update_invokes_update_handler(self, update_mock) -> None:
         code = main(["--update"])
         self.assertEqual(code, 0)
         update_mock.assert_called_once_with("auto", None)
 
-    @patch("initra_cli.run_uninstall")
+    @patch("initra.cli.run_uninstall")
     def test_uninstall_invokes_uninstall_handler(self, uninstall_mock) -> None:
         code = main(["--uninstall"])
         self.assertEqual(code, 0)
@@ -260,32 +260,32 @@ class CliBehaviorTests(unittest.TestCase):
         )
         self.assertIsNone(validate_mode_args(args))
 
-    @patch("initra_cli.execute_update_command")
+    @patch("initra.cli.execute_update_command")
     def test_self_update_pipx_from_path_uses_force_install(self, command_mock) -> None:
-        from initra_cli import run_self_update
+        from initra.cli import run_self_update
 
         run_self_update("pipx", "./")
         expected = ["pipx", "install", "--force", str(Path("./").resolve())]
         command_mock.assert_called_once_with(expected)
 
-    @patch("initra_cli.execute_update_command")
+    @patch("initra.cli.execute_update_command")
     def test_self_update_pip_without_path_uses_pypi(self, command_mock) -> None:
-        from initra_cli import run_self_update
+        from initra.cli import run_self_update
         import sys
 
         run_self_update("pip", None)
         command_mock.assert_called_once_with([sys.executable, "-m", "pip", "install", "--upgrade", "initra"])
 
-    @patch("initra_cli.execute_update_command")
+    @patch("initra.cli.execute_update_command")
     def test_uninstall_pipx_uses_pipx_uninstall(self, command_mock) -> None:
-        from initra_cli import run_uninstall
+        from initra.cli import run_uninstall
 
         run_uninstall("pipx")
         command_mock.assert_called_once_with(["pipx", "uninstall", "initra"])
 
-    @patch("initra_cli.execute_update_command")
+    @patch("initra.cli.execute_update_command")
     def test_uninstall_pip_uses_pip_uninstall(self, command_mock) -> None:
-        from initra_cli import run_uninstall
+        from initra.cli import run_uninstall
         import sys
 
         run_uninstall("pip")

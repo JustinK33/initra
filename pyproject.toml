@@ -6,26 +6,41 @@ build-backend = "setuptools.build_meta"
 name = "initra"
 version = "0.1.0"
 description = "A cross-platform CLI for scaffolding production-ready projects"
-readme = "README.md"
-requires-python = ">=3.10"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.11"
 authors = [{ name = "Justin Kong" }]
-license = { text = "MIT" }
+license = "MIT"
+dependencies = []
 keywords = ["scaffold", "cli", "project-generator", "starter", "templates"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
-  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Operating System :: OS Independent",
 ]
+
+[project.urls]
+Homepage = "https://github.com/JustinK33/initra"
+Repository = "https://github.com/JustinK33/initra"
+Issues = "https://github.com/JustinK33/initra/issues"
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<9"]
 
 [project.scripts]
-initra = "initra:main"
+initra = "initra.__main__:main"
 
 [tool.setuptools]
-py-modules = ["initra", "initra_cli", "initra_core", "initra_ops"]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["initra*"]
+
+[tool.setuptools.package-data]
+initra = ["templates/**/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

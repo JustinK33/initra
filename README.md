@@ -32,7 +32,11 @@ Instantly create fully-configured projects for Python, Node.js, Ruby, and Java w
 ### Install
 
 ```bash
-pipx install .
+# From PyPI (recommended)
+pipx install initra
+
+# Or with pip
+python3.11 -m pip install initra
 ```
 
 See [INSTALL.md](INSTALL.md) for detailed installation options.
@@ -278,19 +282,19 @@ See [USAGE.md](USAGE.md) for:
 
 ```bash
 # Run directly without installation
-python3 initra.py myapp python flask
+python3.11 initra.py myapp python flask
 
 # Install in editable mode
-pip install -e .
+python3.11 -m pip install -e .
 initra myapp python fastapi
 
 # Run automated CLI tests
-python -m unittest discover -s tests
+python3.11 -m unittest discover -s tests
 ```
 
 ## Prerequisites
 
-- **Python 3.10+** – For running the CLI
+- **Python 3.11+** – For running the CLI
 - **Git** – For repository initialization
 - **Framework CLIs** – Rails, Spring, etc. (installed separately)
 

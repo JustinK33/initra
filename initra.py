@@ -2,7 +2,7 @@
 """initra: a cross-platform project scaffolding CLI."""
 from __future__ import annotations
 
-from initra_cli import main
+from initra.__main__ import main
 
 
 if __name__ == "__main__":
