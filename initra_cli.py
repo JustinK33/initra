@@ -14,10 +14,12 @@ from initra_ops import scaffold_project
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
+    validation_error = validate_mode_args(args)
+    if validation_error:
+        print(f"error: {validation_error}", file=sys.stderr)
+        return 1
+
     if args.uninstall:
-        if any((args.name, args.language, args.framework, args.self_update, args.list_stacks)):
-            print("error: `--uninstall` cannot be combined with other arguments.", file=sys.stderr)
-            return 1
         try:
             run_uninstall(args.uninstall_method)
         except ScaffoldError as exc:
@@ -26,9 +28,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
 
     if args.self_update:
-        if any((args.name, args.language, args.framework)):
-            print("error: `--self-update` cannot be combined with project scaffold arguments.", file=sys.stderr)
-            return 1
         try:
             run_self_update(args.update_method, args.from_path)
         except ScaffoldError as exc:
@@ -52,6 +51,52 @@ def main(argv: Sequence[str] | None = None) -> int:
     if spec.output_json:
         print(json.dumps(result, indent=2))
     return 0
+
+
+def validate_mode_args(args: argparse.Namespace) -> str | None:
+    scaffold_args_used = any(
+        (
+            args.name,
+            args.language,
+            args.framework,
+            args.gh,
+            args.public,
+            args.open_in_vscode,
+            args.ts,
+            getattr(args, "tutorial", False),
+            args.no_install,
+            args.no_git,
+            args.dry_run,
+            args.json_output,
+            args.output_dir != ".",
+        )
+    )
+
+    if args.list_stacks:
+        if any((args.self_update, args.uninstall, scaffold_args_used, args.from_path, args.update_method != "auto", args.uninstall_method != "auto")):
+            return "`--list` cannot be combined with other arguments."
+        return None
+
+    if args.self_update:
+        if any((args.uninstall, scaffold_args_used, args.list_stacks, args.uninstall_method != "auto")):
+            return "`--self-update` cannot be combined with project scaffold arguments."
+        return None
+
+    if args.uninstall:
+        if any((args.self_update, scaffold_args_used, args.list_stacks, args.from_path, args.update_method != "auto")):
+            return "`--uninstall` cannot be combined with other arguments."
+        return None
+
+    if args.from_path:
+        return "`--from-path` can only be used with `--self-update`."
+
+    if args.update_method != "auto":
+        return "`--update-method` can only be used with `--self-update`."
+
+    if args.uninstall_method != "auto":
+        return "`--uninstall-method` can only be used with `--uninstall`."
+
+    return None
 
 
 def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:

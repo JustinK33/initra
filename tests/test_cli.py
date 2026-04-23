@@ -8,7 +8,7 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
-from initra_cli import build_spec, fill_missing_args_interactively, main
+from initra_cli import build_spec, fill_missing_args_interactively, main, validate_mode_args
 from initra_core import ProjectSpec, ScaffoldError, format_supported_stacks, generate_framework_plan, sanitize_project_name
 
 
@@ -147,6 +147,70 @@ class CliBehaviorTests(unittest.TestCase):
     def test_uninstall_rejects_list_flag(self) -> None:
         code = main(["--uninstall", "--list"])
         self.assertEqual(code, 1)
+
+    def test_list_rejects_scaffold_args(self) -> None:
+        code = main(["--list", "demo", "python", "flask"])
+        self.assertEqual(code, 1)
+
+    def test_self_update_rejects_list_flag(self) -> None:
+        code = main(["--self-update", "--list"])
+        self.assertEqual(code, 1)
+
+    def test_from_path_requires_self_update(self) -> None:
+        code = main(["--from-path", "./"])
+        self.assertEqual(code, 1)
+
+    def test_update_method_requires_self_update(self) -> None:
+        code = main(["--update-method", "pip"])
+        self.assertEqual(code, 1)
+
+    def test_uninstall_method_requires_uninstall(self) -> None:
+        code = main(["--uninstall-method", "pip"])
+        self.assertEqual(code, 1)
+
+    def test_tutorial_flag_is_captured_in_spec(self) -> None:
+        args = argparse.Namespace(
+            name="demo",
+            language="python",
+            framework="flask",
+            gh=False,
+            public=False,
+            open_in_vscode=False,
+            ts=False,
+            tutorial=True,
+            no_install=False,
+            no_git=False,
+            dry_run=False,
+            output_dir=".",
+            json_output=False,
+            list_stacks=False,
+        )
+        spec = build_spec(args)
+        self.assertTrue(spec.tutorial)
+
+    def test_validate_mode_args_accepts_plain_scaffold(self) -> None:
+        args = argparse.Namespace(
+            name="demo",
+            language="python",
+            framework="flask",
+            gh=False,
+            public=False,
+            open_in_vscode=False,
+            ts=False,
+            tutorial=False,
+            no_install=False,
+            no_git=False,
+            dry_run=False,
+            output_dir=".",
+            json_output=False,
+            list_stacks=False,
+            self_update=False,
+            update_method="auto",
+            from_path=None,
+            uninstall=False,
+            uninstall_method="auto",
+        )
+        self.assertIsNone(validate_mode_args(args))
 
     @patch("initra_cli.execute_update_command")
     def test_self_update_pipx_from_path_uses_force_install(self, command_mock) -> None:

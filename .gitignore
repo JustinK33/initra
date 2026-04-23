@@ -20,3 +20,4 @@ npm-debug.log*
 .env.local
 test-*/
 *.claude
+initra.egg-info
