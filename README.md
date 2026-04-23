@@ -3,45 +3,33 @@
 
 **A cross-platform CLI for scaffolding production-ready starter projects.**
 
-Instantly create fully-configured projects for Python, Node.js, Ruby, and Java with one command. Includes git initialization, framework boilerplate, dependency installation, optional GitHub integration, and VS Code launch.
+Generate fully-configured starter projects for Python, Node.js, Ruby, and Java from one command.
 
-## Features
-
-✅ **Multiple Languages & Frameworks**
-- Python: Flask, FastAPI, Django, Aiohttp  
-- Node.js: Express (JS/TS), Next.js, Koa
-- Ruby: Rails, Sinatra
-- Java: Spring Boot, Javalin
-
-✅ **Automatic Setup**
-- Project directory creation
-- Git repository initialization
-- Framework-specific boilerplate code
-- Language-appropriate `.gitignore` files
-- Dependency file generation and installation
-- Python virtualenv creation (auto-installed)
-
-✅ **Developer Integrations**
-- Create GitHub repositories with `--gh` flag
-- Open projects in VS Code with `--open` flag  
-- TypeScript support for Express projects
-- Interactive prompts when run with no arguments
-
-## Quick Start
-
-### Install
+## Install
 
 ```bash
-# From PyPI (recommended)
+# Recommended
 pipx install initra
 
-# Or with pip
-python3.11 -m pip install initra
+# Secondary option
+python3 -m pip install initra
 ```
 
-See [INSTALL.md](INSTALL.md) for detailed installation options.
+See [INSTALL.md](https://github.com/JustinK33/initra/blob/main/INSTALL.md) for detailed installation options.
 
-### Create a Project
+## First Command
+
+```bash
+initra myapi python fastapi
+```
+
+## Demo
+
+![initra CLI demo](https://raw.githubusercontent.com/JustinK33/initra/main/docs/demo.gif)
+
+> Replace `docs/demo.gif` with an updated terminal recording before publishing major feature updates.
+
+## Quick Start
 
 ```bash
 # FastAPI REST API with automatic virtual environment
@@ -66,6 +54,28 @@ initra service java springboot
 ```bash
 initra <name> <language> <framework> [options]
 ```
+
+## Features
+
+✅ **Multiple Languages & Frameworks**
+- Python: Flask, FastAPI, Django, Aiohttp
+- Node.js: Express (JS/TS), Next.js, Koa
+- Ruby: Rails, Sinatra
+- Java: Spring Boot, Javalin
+
+✅ **Automatic Setup**
+- Project directory creation
+- Git repository initialization
+- Framework-specific boilerplate code
+- Language-appropriate `.gitignore` files
+- Dependency file generation and installation
+- Python virtualenv creation (auto-installed)
+
+✅ **Developer Integrations**
+- Create GitHub repositories with `--gh` flag
+- Open projects in VS Code with `--open` flag
+- TypeScript support for Express projects
+- Interactive prompts when run with no arguments
 
 ### Options
 
@@ -266,13 +276,13 @@ cd myapp
 
 ## Installation & Setup Details
 
-See [INSTALL.md](INSTALL.md) for:
+See [INSTALL.md](https://github.com/JustinK33/initra/blob/main/INSTALL.md) for:
 - Framework prerequisites
 - Alternative installation methods
 - Troubleshooting
 - Detailed verification steps
 
-See [USAGE.md](USAGE.md) for:
+See [USAGE.md](https://github.com/JustinK33/initra/blob/main/USAGE.md) for:
 - Complete command reference
 - Framework-specific examples
 - Interactive mode walkthrough
@@ -282,19 +292,19 @@ See [USAGE.md](USAGE.md) for:
 
 ```bash
 # Run directly without installation
-python3.11 initra.py myapp python flask
+python3 initra.py myapp python flask
 
 # Install in editable mode
-python3.11 -m pip install -e .
+python3 -m pip install -e .
 initra myapp python fastapi
 
 # Run automated CLI tests
-python3.11 -m unittest discover -s tests
+python3 -m unittest discover -s tests
 ```
 
 ## Prerequisites
 
-- **Python 3.11+** – For running the CLI
+- **Python 3.10+** – For running the CLI
 - **Git** – For repository initialization
 - **Framework CLIs** – Rails, Spring, etc. (installed separately)
 

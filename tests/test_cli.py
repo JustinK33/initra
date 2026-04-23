@@ -36,13 +36,34 @@ class CliBehaviorTests(unittest.TestCase):
         )
 
         # Framework is the only required missing field in this case.
-        with patch("builtins.input", side_effect=["express"]):
-            filled = fill_missing_args_interactively(args)
+        with patch("sys.stdin.isatty", return_value=True):
+            with patch("builtins.input", side_effect=["express"]):
+                filled = fill_missing_args_interactively(args)
 
         self.assertEqual(filled.framework, "express")
         self.assertFalse(filled.gh)
         self.assertFalse(filled.open_in_vscode)
         self.assertFalse(filled.ts)
+
+    def test_interactive_prompt_is_blocked_in_non_tty(self) -> None:
+        args = argparse.Namespace(
+            name="demo",
+            language="node",
+            framework=None,
+            gh=False,
+            public=False,
+            open_in_vscode=False,
+            ts=False,
+            no_install=False,
+            no_git=False,
+            dry_run=False,
+            output_dir=".",
+            json_output=False,
+            list_stacks=False,
+        )
+        with patch("sys.stdin.isatty", return_value=False):
+            with self.assertRaises(ScaffoldError):
+                fill_missing_args_interactively(args)
 
     def test_public_requires_gh(self) -> None:
         args = argparse.Namespace(
@@ -296,6 +317,14 @@ class CliBehaviorTests(unittest.TestCase):
 
         run_self_update("pip", None)
         command_mock.assert_called_once_with([sys.executable, "-m", "pip", "install", "--upgrade", "initra"])
+
+    @patch("initra.cli.execute_update_command")
+    def test_self_update_from_path_requires_existing_path(self, command_mock) -> None:
+        from initra.cli import run_self_update
+
+        with self.assertRaises(ScaffoldError):
+            run_self_update("pip", "/tmp/initra-path-does-not-exist")
+        command_mock.assert_not_called()
 
     @patch("initra.cli.execute_update_command")
     def test_uninstall_pipx_uses_pipx_uninstall(self, command_mock) -> None:

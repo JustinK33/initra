@@ -242,7 +242,12 @@ def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
 
 
 def run_self_update(method: str, from_path: str | None) -> None:
-    source_path = str(Path(from_path).expanduser().resolve()) if from_path else None
+    source_path: str | None = None
+    if from_path:
+        resolved = Path(from_path).expanduser().resolve()
+        if not resolved.exists():
+            raise ScaffoldError(f"`--from-path` does not exist: {resolved}")
+        source_path = str(resolved)
     selected_method = detect_update_method() if method == "auto" else method
 
     if selected_method == "pipx":
@@ -306,6 +311,11 @@ def fill_missing_args_interactively(existing: argparse.Namespace) -> argparse.Na
     no_positionals = not any((existing.name, existing.language, existing.framework))
     if not no_positionals and all((existing.name, existing.language, existing.framework)):
         return existing
+    if not sys.stdin.isatty():
+        raise ScaffoldError(
+            "Missing required arguments in non-interactive mode. "
+            "Use `initra <name> <language> <framework>` or run from an interactive terminal."
+        )
 
     print(
         "No arguments supplied. Enter project details interactively."

@@ -7,14 +7,18 @@ name = "initra"
 version = "0.1.0"
 description = "A cross-platform CLI for scaffolding production-ready projects"
 readme = { file = "README.md", content-type = "text/markdown" }
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 authors = [{ name = "Justin Kong" }]
 license = "MIT"
 dependencies = []
 keywords = ["scaffold", "cli", "project-generator", "starter", "templates"]
 classifiers = [
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Code Generators",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
@@ -24,6 +28,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/JustinK33/initra"
 Repository = "https://github.com/JustinK33/initra"
+Documentation = "https://github.com/JustinK33/initra/blob/main/USAGE.md"
 Issues = "https://github.com/JustinK33/initra/issues"
 
 [project.optional-dependencies]
