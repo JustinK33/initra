@@ -188,6 +188,27 @@ class CliBehaviorTests(unittest.TestCase):
         spec = build_spec(args)
         self.assertTrue(spec.tutorial)
 
+    def test_license_flag_is_captured_in_spec(self) -> None:
+        args = argparse.Namespace(
+            name="demo",
+            language="python",
+            framework="flask",
+            gh=False,
+            public=False,
+            open_in_vscode=False,
+            ts=False,
+            tutorial=False,
+            no_install=False,
+            no_git=False,
+            dry_run=False,
+            output_dir=".",
+            json_output=False,
+            list_stacks=False,
+            license=True,
+        )
+        spec = build_spec(args)
+        self.assertTrue(spec.include_license)
+
     def test_validate_mode_args_accepts_plain_scaffold(self) -> None:
         args = argparse.Namespace(
             name="demo",

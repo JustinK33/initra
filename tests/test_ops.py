@@ -32,7 +32,24 @@ class OpsTests(unittest.TestCase):
             self.assertFalse(result["git_initialized"])
             self.assertIn("package.json", created_files)
             self.assertIn("npm install", executed_commands)
+            self.assertNotIn("LICENSE", created_files)
             self.assertFalse((output_dir / "demo").exists())
+
+    def test_dry_run_includes_license_when_requested(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp)
+            spec = ProjectSpec(
+                name="demo",
+                language="node",
+                framework="koa",
+                path=output_dir / "demo",
+                no_git=True,
+                dry_run=True,
+                include_license=True,
+            )
+            result = scaffold_project(spec)
+            created_files = cast(list[str], result["created_files"])
+            self.assertIn("LICENSE", created_files)
 
 
 if __name__ == "__main__":

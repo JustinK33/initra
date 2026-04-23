@@ -36,6 +36,7 @@ class ProjectSpec:
     dry_run: bool = False
     output_json: bool = False
     tutorial: bool = False
+    include_license: bool = False
 
 
 @dataclass
@@ -283,7 +284,7 @@ def generate_node_plan(spec: ProjectSpec) -> FrameworkPlan:
         )
 
     if spec.framework == "koa":
-        files = build_simple_node_files(spec.name, "koa", spec.tutorial)
+        files = build_simple_node_files(spec.name, "koa", spec.tutorial, include_license=spec.include_license)
         post_commands = [] if spec.no_install else [["npm", "install"]]
         install_text = "Install dependencies with `npm install`." if not spec.no_install else "Dependency installation was skipped due to `--no-install`."
         return FrameworkPlan(
@@ -297,7 +298,12 @@ def generate_node_plan(spec: ProjectSpec) -> FrameworkPlan:
         )
 
     use_ts = spec.framework == "express-ts"
-    files = build_simple_node_files(spec.name, "express-ts" if use_ts else "express", spec.tutorial)
+    files = build_simple_node_files(
+        spec.name,
+        "express-ts" if use_ts else "express",
+        spec.tutorial,
+        include_license=spec.include_license,
+    )
 
     post_commands = [] if spec.no_install else [["npm", "install"]]
     install_text = "Install dependencies with `npm install`." if not spec.no_install else "Dependency installation was skipped due to `--no-install`."
@@ -420,7 +426,7 @@ def generate_java_plan(spec: ProjectSpec) -> FrameworkPlan:
     )
 
 
-def build_express_package_json(project_name: str, use_ts: bool) -> str:
+def build_express_package_json(project_name: str, use_ts: bool, include_license: bool = False) -> str:
     data = {
         "name": project_name,
         "version": "1.0.0",
@@ -435,8 +441,9 @@ def build_express_package_json(project_name: str, use_ts: bool) -> str:
             "format": "prettier --write .",
         },
         "keywords": ["express", "beginner", "users"],
-        "license": "MIT",
     }
+    if include_license:
+        data["license"] = "MIT"
     data["dependencies"] = {"express": "^5.0.0", "dotenv": "^16.4.5", "supertest": "^7.1.1"}
     if use_ts:
         data["type"] = "commonjs"
@@ -459,9 +466,14 @@ def build_express_package_json(project_name: str, use_ts: bool) -> str:
     return json.dumps(data, indent=2) + "\n"
 
 
-def build_simple_node_files(project_name: str, variant: str, tutorial: bool = False) -> list[tuple[str, str]]:
+def build_simple_node_files(
+    project_name: str,
+    variant: str,
+    tutorial: bool = False,
+    include_license: bool = False,
+) -> list[tuple[str, str]]:
     if variant == "koa":
-        return build_simple_koa_files(project_name, tutorial)
+        return build_simple_koa_files(project_name, tutorial, include_license=include_license)
 
     is_ts = variant == "express-ts"
     template_root = "node/express-ts" if is_ts else "node/express-js"
@@ -484,7 +496,7 @@ def build_simple_node_files(project_name: str, variant: str, tutorial: bool = Fa
     health_template = TUTORIAL_EXPRESS_HEALTH_ROUTE if tutorial else (DEFAULT_NODE_HEALTH_ROUTE_TS if is_ts else DEFAULT_NODE_HEALTH_ROUTE_JS)
 
     files = [
-        ("package.json", build_express_package_json(project_name, is_ts)),
+        ("package.json", build_express_package_json(project_name, is_ts, include_license=include_license)),
         (".env.example", DEFAULT_NODE_ENV_EXAMPLE),
         ("Dockerfile", DEFAULT_NODE_DOCKERFILE),
         (".dockerignore", DEFAULT_NODE_DOCKERIGNORE),
@@ -509,7 +521,11 @@ def build_simple_node_files(project_name: str, variant: str, tutorial: bool = Fa
     return files
 
 
-def build_simple_koa_files(project_name: str, tutorial: bool = False) -> list[tuple[str, str]]:
+def build_simple_koa_files(
+    project_name: str,
+    tutorial: bool = False,
+    include_license: bool = False,
+) -> list[tuple[str, str]]:
     template_root = "node/koa"
 
     # Select tutorial or regular templates
@@ -517,7 +533,7 @@ def build_simple_koa_files(project_name: str, tutorial: bool = False) -> list[tu
     health_template = TUTORIAL_KOA_HEALTH_ROUTE if tutorial else DEFAULT_KOA_SIMPLE_HEALTH_ROUTE
 
     return [
-        ("package.json", build_koa_package_json(project_name)),
+        ("package.json", build_koa_package_json(project_name, include_license=include_license)),
         (".env.example", DEFAULT_NODE_ENV_EXAMPLE),
         ("Dockerfile", DEFAULT_NODE_DOCKERFILE),
         (".dockerignore", DEFAULT_NODE_DOCKERIGNORE),
@@ -539,7 +555,7 @@ def build_simple_koa_files(project_name: str, tutorial: bool = False) -> list[tu
     ]
 
 
-def build_koa_package_json(project_name: str) -> str:
+def build_koa_package_json(project_name: str, include_license: bool = False) -> str:
     data = {
         "name": project_name,
         "version": "1.0.0",
@@ -554,7 +570,6 @@ def build_koa_package_json(project_name: str) -> str:
             "format": "prettier --write .",
         },
         "keywords": ["koa", "beginner", "users"],
-        "license": "MIT",
         "dependencies": {
             "koa": "^2.15.0",
             "@koa/router": "^12.0.1",
@@ -568,6 +583,8 @@ def build_koa_package_json(project_name: str) -> str:
             "prettier": "^3.3.3",
         },
     }
+    if include_license:
+        data["license"] = "MIT"
     return json.dumps(data, indent=2) + "\n"
 
 
@@ -3142,6 +3159,9 @@ def render_gitignore(spec: ProjectSpec) -> str:
         "Thumbs.db",
         ".vscode/",
         ".idea/",
+        ".env",
+        ".env.*",
+        "!.env.example",
     ]
     if spec.language == "python":
         common.extend([
@@ -3161,8 +3181,6 @@ def render_gitignore(spec: ProjectSpec) -> str:
             "dist/",
             "coverage/",
             ".next/",
-            ".env",
-            ".env.*",
         ])
     elif spec.language == "ruby":
         common.extend([

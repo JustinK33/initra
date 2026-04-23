@@ -68,6 +68,7 @@ def validate_mode_args(args: argparse.Namespace) -> str | None:
             args.no_git,
             args.dry_run,
             args.json_output,
+            getattr(args, "license", False),
             args.output_dir != ".",
         )
     )
@@ -119,6 +120,11 @@ def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--no-install", action="store_true", help="Skip package/dependency install steps")
     parser.add_argument("--no-git", action="store_true", help="Skip git init/add/commit")
     parser.add_argument("--dry-run", action="store_true", help="Preview actions without creating files")
+    parser.add_argument(
+        "--license",
+        action="store_true",
+        help="Include an MIT license file and language-specific license metadata",
+    )
     parser.add_argument("--output-dir", default=".", help="Base directory where the project folder is created")
     parser.add_argument("--json", action="store_true", dest="json_output", help="Print a machine-readable JSON summary")
     parser.add_argument("--list", action="store_true", dest="list_stacks", help="List supported languages/frameworks and exit")
@@ -312,4 +318,5 @@ def build_spec(args: argparse.Namespace) -> ProjectSpec:
         dry_run=bool(args.dry_run),
         output_json=bool(args.json_output),
         tutorial=bool(getattr(args, "tutorial", False)),
+        include_license=bool(getattr(args, "license", False)),
     )

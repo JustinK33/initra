@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from initra_core import ProjectSpec, generate_framework_plan
+from initra_core import ProjectSpec, generate_framework_plan, render_gitignore
 
 
 STACK_CASES = [
@@ -198,3 +198,23 @@ def test_python_template_files_compile(
 
     for path, content in python_files:
         compile(content, path, "exec")
+
+
+@pytest.mark.parametrize("language", ["python", "node", "ruby", "java"])
+def test_gitignore_includes_env_rules_for_all_languages(tmp_path: Path, language: str) -> None:
+    framework = {
+        "python": "flask",
+        "node": "express",
+        "ruby": "sinatra",
+        "java": "javalin",
+    }[language]
+    spec = ProjectSpec(
+        name="demo-template",
+        language=language,
+        framework=framework,
+        path=tmp_path / "demo-template",
+    )
+    content = render_gitignore(spec)
+    assert ".env\n" in content
+    assert ".env.*\n" in content
+    assert "!.env.example\n" in content

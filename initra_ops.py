@@ -57,7 +57,7 @@ def scaffold_project(spec: ProjectSpec) -> dict[str, object]:
             language=spec.language,
             framework=spec.framework,
             dry_run=True,
-            created_files=_dry_run_file_list(plan),
+            created_files=_dry_run_file_list(spec, plan),
             executed_commands=_commands_preview(plan),
             git_initialized=False,
             github_repo_created=False,
@@ -90,8 +90,9 @@ def scaffold_project(spec: ProjectSpec) -> dict[str, object]:
     created_files.append(".gitignore")
     write_file(spec.path / "README.md", render_readme(spec, plan))
     created_files.append("README.md")
-    write_file(spec.path / "LICENSE", render_license(spec))
-    created_files.append("LICENSE")
+    if spec.include_license:
+        write_file(spec.path / "LICENSE", render_license(spec))
+        created_files.append("LICENSE")
     run_generation_commands(plan.post_commands, spec.path, executed_commands, echo=echo)
 
     git_initialized = False
@@ -130,9 +131,11 @@ def _commands_preview(plan: FrameworkPlan) -> list[str]:
     return [" ".join(cmd) for cmd in [*plan.commands, *plan.post_commands]]
 
 
-def _dry_run_file_list(plan: FrameworkPlan) -> list[str]:
+def _dry_run_file_list(spec: ProjectSpec, plan: FrameworkPlan) -> list[str]:
     files = [relative_path for relative_path, _ in plan.files]
-    files.extend([".gitignore", "README.md", "LICENSE"])
+    files.extend([".gitignore", "README.md"])
+    if spec.include_license:
+        files.append("LICENSE")
     return files
 
 
@@ -150,7 +153,8 @@ def print_dry_run(spec: ProjectSpec, plan: FrameworkPlan) -> None:
             print(f"- {relative_path}")
         print("- .gitignore")
         print("- README.md")
-        print("- LICENSE")
+        if spec.include_license:
+            print("- LICENSE")
     if plan.post_commands:
         print("Post commands:")
         for command in plan.post_commands:
