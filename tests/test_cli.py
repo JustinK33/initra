@@ -130,8 +130,22 @@ class CliBehaviorTests(unittest.TestCase):
         self.assertEqual(code, 0)
         update_mock.assert_called_once_with("auto", None)
 
+    @patch("initra_cli.run_uninstall")
+    def test_uninstall_invokes_uninstall_handler(self, uninstall_mock) -> None:
+        code = main(["--uninstall"])
+        self.assertEqual(code, 0)
+        uninstall_mock.assert_called_once_with("auto")
+
     def test_self_update_rejects_scaffold_args(self) -> None:
         code = main(["demo", "python", "flask", "--self-update"])
+        self.assertEqual(code, 1)
+
+    def test_uninstall_rejects_scaffold_args(self) -> None:
+        code = main(["demo", "python", "flask", "--uninstall"])
+        self.assertEqual(code, 1)
+
+    def test_uninstall_rejects_list_flag(self) -> None:
+        code = main(["--uninstall", "--list"])
         self.assertEqual(code, 1)
 
     @patch("initra_cli.execute_update_command")
@@ -149,6 +163,21 @@ class CliBehaviorTests(unittest.TestCase):
 
         run_self_update("pip", None)
         command_mock.assert_called_once_with([sys.executable, "-m", "pip", "install", "--upgrade", "initra"])
+
+    @patch("initra_cli.execute_update_command")
+    def test_uninstall_pipx_uses_pipx_uninstall(self, command_mock) -> None:
+        from initra_cli import run_uninstall
+
+        run_uninstall("pipx")
+        command_mock.assert_called_once_with(["pipx", "uninstall", "initra"])
+
+    @patch("initra_cli.execute_update_command")
+    def test_uninstall_pip_uses_pip_uninstall(self, command_mock) -> None:
+        from initra_cli import run_uninstall
+        import sys
+
+        run_uninstall("pip")
+        command_mock.assert_called_once_with([sys.executable, "-m", "pip", "uninstall", "-y", "initra"])
 
 
 class PlanTests(unittest.TestCase):
@@ -201,7 +230,8 @@ class PlanTests(unittest.TestCase):
     def test_koa_plan_created(self) -> None:
         spec = self._spec(language="node", framework="koa")
         plan = generate_framework_plan(spec)
-        self.assertTrue(any(path == "src/index.js" for path, _ in plan.files))
+        self.assertTrue(any(path == "src/app.js" for path, _ in plan.files))
+        self.assertTrue(any(path == "src/routes/users.js" for path, _ in plan.files))
         self.assertEqual(plan.post_commands, [["npm", "install"]])
 
     def test_sinatra_plan_created(self) -> None:

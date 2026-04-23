@@ -49,7 +49,12 @@ pip install --user pipx
 
 # Install initra
 pipx install /path/to/initra
+
+# Install initra with plain (no emoji) pipx output
+PIPX_USE_EMOJI=0 pipx install /path/to/initra
 ```
+
+If you prefer professional/plain terminal output, set `PIPX_USE_EMOJI=0` in your shell profile.
 
 Then verify the installation:
 ```bash
@@ -59,11 +64,13 @@ initra --help
 To upgrade:
 ```bash
 pipx upgrade initra
+PIPX_USE_EMOJI=0 pipx upgrade initra
 ```
 
 To uninstall:
 ```bash
 pipx uninstall initra
+PIPX_USE_EMOJI=0 pipx uninstall initra
 ```
 
 ### 2. Development / Editable Install
@@ -231,15 +238,37 @@ Note: Next.js projects install dependencies during generation by default. If you
 
 ## Uninstallation
 
-### pipx
+### CLI Command (Recommended)
+```bash
+initra --uninstall
+```
+
+This will automatically detect whether you installed via pipx or pip and run the appropriate uninstall command.
+
+You can also specify the method explicitly:
+```bash
+initra --uninstall --uninstall-method pipx
+initra --uninstall --uninstall-method pip
+```
+
+### Manual Methods
+
+#### pipx
 ```bash
 pipx uninstall initra
 ```
 
-### pip
+#### pip
 ```bash
 pip uninstall initra
 ```
 
-### Manual
+#### Manual Installation
 Simply delete the initra directory or remove it from your PATH.
+
+Note: `initra --uninstall` removes the installed CLI from pipx/pip, but it does not delete local packaging artifacts in your source checkout (for example `initra.egg-info/` or `build/`).
+
+To clean local packaging artifacts in the repository:
+```bash
+rm -rf initra.egg-info build dist
+```

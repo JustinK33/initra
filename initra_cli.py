@@ -14,6 +14,17 @@ from initra_ops import scaffold_project
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
+    if args.uninstall:
+        if any((args.name, args.language, args.framework, args.self_update, args.list_stacks)):
+            print("error: `--uninstall` cannot be combined with other arguments.", file=sys.stderr)
+            return 1
+        try:
+            run_uninstall(args.uninstall_method)
+        except ScaffoldError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 1
+        return 0
+
     if args.self_update:
         if any((args.name, args.language, args.framework)):
             print("error: `--self-update` cannot be combined with project scaffold arguments.", file=sys.stderr)
@@ -76,6 +87,13 @@ def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         "--from-path",
         help="Local path to install from when using --self-update (useful for upgrading from a local clone)",
     )
+    parser.add_argument("--uninstall", action="store_true", help="Uninstall the initra CLI")
+    parser.add_argument(
+        "--uninstall-method",
+        choices=["auto", "pipx", "pip"],
+        default="auto",
+        help="Uninstall backend (default: auto)",
+    )
     return parser.parse_args(argv)
 
 
@@ -96,6 +114,21 @@ def run_self_update(method: str, from_path: str | None) -> None:
 
 def detect_update_method() -> str:
     return "pipx" if shutil.which("pipx") else "pip"
+
+
+def run_uninstall(method: str) -> None:
+    selected_method = detect_update_method() if method == "auto" else method
+
+    if selected_method == "pipx":
+        command = ["pipx", "uninstall", "initra"]
+    elif selected_method == "pip":
+        # Use -y to avoid interactive prompts and keep CLI uninstall scriptable.
+        command = [sys.executable, "-m", "pip", "uninstall", "-y", "initra"]
+    else:
+        raise ScaffoldError(f"Unsupported uninstall method: {selected_method}")
+
+    execute_update_command(command)
+    print("Uninstall complete.")
 
 
 def execute_update_command(command: Sequence[str]) -> None:

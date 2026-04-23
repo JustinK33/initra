@@ -1,14 +1,16 @@
-import os
+from flask import Flask
 
-from flask import Flask, jsonify
-
-app = Flask(__name__)
+from src.routes import health_bp
 
 
-@app.get("/")
-def health():
-    return jsonify(status="ok", project="{{project_name}}")
+def create_app() -> Flask:
+    app = Flask(__name__)
+    app.register_blueprint(health_bp)
+    return app
+
+
+app = create_app()
 
 
 if __name__ == "__main__":
-    app.run(debug=os.getenv("FLASK_DEBUG") == "1")
+    app.run(debug=True)

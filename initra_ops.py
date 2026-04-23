@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
 
-from initra_core import CommandError, FrameworkPlan, ProjectSpec, generate_framework_plan, render_gitignore, render_readme
+from initra_core import CommandError, FrameworkPlan, ProjectSpec, generate_framework_plan, render_gitignore, render_license, render_readme
 
 COMMAND_TIMEOUT_SECONDS = 1800
 
@@ -90,6 +90,8 @@ def scaffold_project(spec: ProjectSpec) -> dict[str, object]:
     created_files.append(".gitignore")
     write_file(spec.path / "README.md", render_readme(spec, plan))
     created_files.append("README.md")
+    write_file(spec.path / "LICENSE", render_license(spec))
+    created_files.append("LICENSE")
     run_generation_commands(plan.post_commands, spec.path, executed_commands, echo=echo)
 
     git_initialized = False
@@ -130,7 +132,7 @@ def _commands_preview(plan: FrameworkPlan) -> list[str]:
 
 def _dry_run_file_list(plan: FrameworkPlan) -> list[str]:
     files = [relative_path for relative_path, _ in plan.files]
-    files.extend([".gitignore", "README.md"])
+    files.extend([".gitignore", "README.md", "LICENSE"])
     return files
 
 
@@ -148,6 +150,7 @@ def print_dry_run(spec: ProjectSpec, plan: FrameworkPlan) -> None:
             print(f"- {relative_path}")
         print("- .gitignore")
         print("- README.md")
+        print("- LICENSE")
     if plan.post_commands:
         print("Post commands:")
         for command in plan.post_commands:
