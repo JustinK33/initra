@@ -7,7 +7,7 @@ This guide shows how to test `initra` itself and verify that generated projects 
 ### 0. Run Automated CLI Tests
 
 ```bash
-python -m unittest discover -s tests
+python -m pytest
 ```
 
 ### 1. Test the CLI Directly
@@ -54,7 +54,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 # Run tests
-python -m unittest discover -s tests
+python -m pytest
 
 # Start the server
 uvicorn src.main:app --reload
@@ -77,7 +77,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 # Run tests
-python -m unittest discover -s tests
+python -m pytest
 
 # Start the server
 flask --app src.app run

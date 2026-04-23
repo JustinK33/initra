@@ -18,8 +18,16 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest>=8,<9"]
+
 [project.scripts]
 initra = "initra:main"
 
 [tool.setuptools]
 py-modules = ["initra", "initra_cli", "initra_core", "initra_ops"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_pytest.py"]
+addopts = "-q"

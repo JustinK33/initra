@@ -359,10 +359,10 @@ def generate_java_plan(spec: ProjectSpec) -> FrameworkPlan:
         files = [
             ("pom.xml", render_template(load_template("java/javalin/pom.xml", build_javalin_pom(spec.name)), {"project_name": spec.name})),
             ("Dockerfile", render_template(load_template("java/javalin/Dockerfile", DEFAULT_JAVALIN_DOCKERFILE), {"project_name": spec.name})),
-            (".env.example", load_template("java/javalin/.env.example", DEFAULT_JAVA_ENV)),
+            (".env.example", render_template(load_template("java/javalin/.env.example", DEFAULT_JAVA_ENV), {"project_name": spec.name})),
             ("src/main/resources/application.properties", render_template(load_template("java/javalin/src/main/resources/application.properties", DEFAULT_JAVALIN_PROPERTIES), {"project_name": spec.name})),
             ("src/main/java/com/example/App.java", render_template(load_template("java/javalin/src/main/java/com/example/App.java", javalin_app), {"project_name": spec.name})),
-            ("src/main/java/com/example/config/AppConfig.java", load_template("java/javalin/src/main/java/com/example/config/AppConfig.java", DEFAULT_JAVALIN_CONFIG)),
+            ("src/main/java/com/example/config/AppConfig.java", render_template(load_template("java/javalin/src/main/java/com/example/config/AppConfig.java", DEFAULT_JAVALIN_CONFIG), {"project_name": spec.name})),
             ("src/main/java/com/example/routes/HealthRoutes.java", load_template("java/javalin/src/main/java/com/example/routes/HealthRoutes.java", DEFAULT_JAVALIN_HEALTH_ROUTES)),
             ("src/main/java/com/example/routes/UserRoutes.java", load_template("java/javalin/src/main/java/com/example/routes/UserRoutes.java", DEFAULT_JAVALIN_USER_ROUTES)),
             ("src/main/java/com/example/controllers/HealthController.java", render_template(load_template("java/javalin/src/main/java/com/example/controllers/HealthController.java", DEFAULT_JAVALIN_HEALTH_CONTROLLER), {"project_name": spec.name})),
@@ -381,7 +381,7 @@ def generate_java_plan(spec: ProjectSpec) -> FrameworkPlan:
             ("src/main/java/com/example/repository/UserRepository.java", load_template("java/javalin/src/main/java/com/example/repository/UserRepository.java", DEFAULT_JAVALIN_USER_REPOSITORY)),
             ("src/main/java/com/example/repository/InMemoryUserRepository.java", load_template("java/javalin/src/main/java/com/example/repository/InMemoryUserRepository.java", DEFAULT_JAVALIN_INMEMORY_REPOSITORY)),
             ("src/test/java/com/example/services/UserServiceTest.java", load_template("java/javalin/src/test/java/com/example/services/UserServiceTest.java", DEFAULT_JAVALIN_SERVICE_TEST)),
-            ("src/test/java/com/example/integration/HealthRoutesIntegrationTest.java", load_template("java/javalin/src/test/java/com/example/integration/HealthRoutesIntegrationTest.java", DEFAULT_JAVALIN_HEALTH_IT)),
+            ("src/test/java/com/example/integration/HealthRoutesIntegrationTest.java", render_template(load_template("java/javalin/src/test/java/com/example/integration/HealthRoutesIntegrationTest.java", DEFAULT_JAVALIN_HEALTH_IT), {"project_name": spec.name})),
             ("src/test/java/com/example/integration/UserRoutesIntegrationTest.java", load_template("java/javalin/src/test/java/com/example/integration/UserRoutesIntegrationTest.java", DEFAULT_JAVALIN_USER_IT)),
         ]
         return FrameworkPlan(
