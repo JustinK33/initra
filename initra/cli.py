@@ -151,6 +151,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             result = scaffold_project(spec, echo=False)
         else:
             result = scaffold_project(spec)
+    except KeyboardInterrupt:
+        renderer.error("Project creation cancelled by user.")
+        return 130  # Standard exit code for SIGINT
     except ScaffoldError as exc:
         renderer.error(str(exc))
         return 1

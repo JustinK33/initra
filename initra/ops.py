@@ -208,6 +208,12 @@ def run_command(command: Sequence[str], cwd: Path, collector: list[str] | None =
         if details:
             raise CommandError(f"Command failed: {display}\n{details}") from exc
         raise CommandError(f"Command failed: {display}") from exc
+    except (KeyboardInterrupt, InterruptedError):
+        raise CommandError(f"Command interrupted by user: {display}") from None
+    except OSError as exc:
+        if exc.errno == 4:  # EINTR - interrupted system call
+            raise CommandError(f"Command interrupted: {display}") from None
+        raise
 
     if echo and completed.stdout.strip():
         print(completed.stdout.rstrip())
