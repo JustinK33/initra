@@ -40,8 +40,9 @@ class ScaffoldResult:
         }
 
 
-def scaffold_project(spec: ProjectSpec) -> dict[str, object]:
-    echo = not spec.output_json
+def scaffold_project(spec: ProjectSpec, echo: bool | None = None) -> dict[str, object]:
+    if echo is None:
+        echo = not spec.output_json
     spec.path.parent.mkdir(parents=True, exist_ok=True)
     ensure_target_directory(spec.path)
     plan = generate_framework_plan(spec)

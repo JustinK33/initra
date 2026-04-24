@@ -13,10 +13,79 @@ from . import __version__
 from .core import ProjectSpec, SUPPORTED_FRAMEWORKS, SUPPORTED_LANGUAGES, ScaffoldError, format_supported_stacks, sanitize_project_name
 from .ops import scaffold_project
 
+try:
+    from rich.console import Console
+    from rich.panel import Panel
+except Exception:  # pragma: no cover - fallback path for minimal environments
+    Console = None  # type: ignore[assignment]
+    Panel = None  # type: ignore[assignment]
+
+
+BANNER = r"""
+ ___ _   _ ___ _____ ____      _
+|_ _| \ | |_ _|_   _|  _ \    / \\
+ | ||  \| || |  | | | |_) |  / _ \\
+ | || |\  || |  | | |  _ <  / ___ \\
+|___|_| \_|___| |_| |_| \_\/_/   \_\\
+""".strip("\n")
+
 
 class InitraArgumentParser(argparse.ArgumentParser):
     def error(self, message: str) -> None:
         raise ScaffoldError(f"Invalid command arguments: {message}. Run `initra --help` or `initra man`.")
+
+
+class CliRenderer:
+    def __init__(self, enabled: bool) -> None:
+        self.enabled = bool(enabled and Console is not None and Panel is not None)
+        self.console = Console(highlight=False, soft_wrap=True) if self.enabled else None
+        self.error_console = Console(stderr=True, highlight=False, soft_wrap=True) if self.enabled else None
+
+        unicode_ok = "utf" in ((sys.stdout.encoding or "").lower())
+        self.ok_icon = "✓" if unicode_ok else "[OK]"
+        self.warn_icon = "⚠" if unicode_ok else "[WARN]"
+        self.err_icon = "✗" if unicode_ok else "[ERR]"
+
+    def banner(self) -> None:
+        if not self.enabled or self.console is None or Panel is None:
+            return
+        self.console.print(
+            Panel.fit(
+                f"[bold cyan]{BANNER}[/bold cyan]\n[dim]Scaffold production-ready starter projects[/dim]",
+                border_style="cyan",
+                padding=(0, 1),
+            )
+        )
+
+    def success(self, message: str) -> None:
+        if self.enabled and self.console is not None:
+            self.console.print(f"[green]{self.ok_icon} {message}[/green]")
+        else:
+            print(f"{self.ok_icon} {message}")
+
+    def warning(self, message: str) -> None:
+        if self.enabled and self.console is not None:
+            self.console.print(f"[yellow]{self.warn_icon} {message}[/yellow]")
+        else:
+            print(f"{self.warn_icon} {message}")
+
+    def error(self, message: str) -> None:
+        if self.enabled and self.error_console is not None:
+            self.error_console.print(f"[bold red]{self.err_icon} {message}[/bold red]")
+        else:
+            print(f"error: {message}", file=sys.stderr)
+
+    def muted(self, message: str) -> None:
+        if self.enabled and self.console is not None:
+            self.console.print(f"[dim]{message}[/dim]")
+        else:
+            print(message)
+
+    def info(self, message: str) -> None:
+        if self.enabled and self.console is not None:
+            self.console.print(message)
+        else:
+            print(message)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -35,16 +104,18 @@ def main(argv: Sequence[str] | None = None) -> int:
             return exc.code
         return 0 if exc.code is None else 1
 
+    renderer = CliRenderer(enabled=not args.json_output)
+
     validation_error = validate_mode_args(args)
     if validation_error:
-        print(f"error: {validation_error}", file=sys.stderr)
+        renderer.error(validation_error)
         return 1
 
     if args.uninstall:
         try:
             run_uninstall(args.uninstall_method)
         except ScaffoldError as exc:
-            print(f"error: {exc}", file=sys.stderr)
+            renderer.error(str(exc))
             return 1
         return 0
 
@@ -52,7 +123,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             run_self_update(args.update_method, args.from_path)
         except ScaffoldError as exc:
-            print(f"error: {exc}", file=sys.stderr)
+            renderer.error(str(exc))
             return 1
         return 0
 
@@ -60,17 +131,39 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(format_supported_stacks())
         return 0
 
-    args = fill_missing_args_interactively(args)
+    if renderer.enabled:
+        renderer.banner()
 
-    spec = build_spec(args)
     try:
-        result = scaffold_project(spec)
+        args = fill_missing_args_interactively(args)
+        spec = build_spec(args)
     except ScaffoldError as exc:
-        print(f"error: {exc}", file=sys.stderr)
+        renderer.error(str(exc))
+        return 1
+
+    try:
+        if spec.output_json:
+            result = scaffold_project(spec, echo=False)
+        elif renderer.enabled and renderer.console is not None and renderer.console.is_terminal and not spec.dry_run:
+            with renderer.console.status("[bold cyan]Scaffolding project...[/bold cyan]", spinner="dots"):
+                result = scaffold_project(spec, echo=False)
+        elif renderer.enabled:
+            result = scaffold_project(spec, echo=False)
+        else:
+            result = scaffold_project(spec)
+    except ScaffoldError as exc:
+        renderer.error(str(exc))
         return 1
 
     if spec.output_json:
         print(json.dumps(result, indent=2))
+        return 0
+
+    if renderer.enabled:
+        if spec.dry_run:
+            render_dry_run(renderer, spec, result)
+        else:
+            render_success(renderer, spec, result)
     return 0
 
 
@@ -425,3 +518,81 @@ def build_spec(args: argparse.Namespace) -> ProjectSpec:
         tutorial=bool(getattr(args, "tutorial", False)),
         include_license=bool(getattr(args, "license", False)),
     )
+
+
+def render_dry_run(renderer: CliRenderer, spec: ProjectSpec, result: dict[str, object]) -> None:
+    renderer.warning("Preview mode enabled (--dry-run). No files were created.")
+    renderer.info(f"Target: {spec.path}")
+    renderer.muted(f"Stack: {spec.language}/{spec.framework}")
+
+    commands = [str(cmd) for cmd in result.get("executed_commands", [])]
+    files = [str(file_name) for file_name in result.get("created_files", [])]
+
+    if commands:
+        renderer.info("\nCommands to run:")
+        for command in commands:
+            renderer.muted(f"  - {command}")
+
+    if files:
+        renderer.info("\nFiles to create:")
+        for file_name in files:
+            renderer.muted(f"  - {file_name}")
+
+    if spec.no_install:
+        renderer.warning("Optional dependency installation step was skipped (--no-install).")
+    if spec.no_git:
+        renderer.warning("Optional Git initialization step was skipped (--no-git).")
+
+
+def render_success(renderer: CliRenderer, spec: ProjectSpec, result: dict[str, object]) -> None:
+    renderer.success(f"Project created at {spec.path}")
+
+    if result.get("git_initialized"):
+        renderer.success("Initialized a Git repository.")
+    elif spec.no_git:
+        renderer.warning("Skipped optional Git initialization (--no-git).")
+
+    if result.get("github_repo_created"):
+        renderer.success("Created GitHub repository.")
+
+    if result.get("opened_in_vscode"):
+        renderer.success("Opened project in VS Code.")
+
+    if spec.no_install:
+        renderer.warning("Skipped optional dependency installation (--no-install).")
+
+    created_files = list(result.get("created_files", []))
+    executed_commands = list(result.get("executed_commands", []))
+    renderer.muted(f"Created files: {len(created_files)}")
+    renderer.muted(f"Executed commands: {len(executed_commands)}")
+
+    renderer.info("\nTips")
+    renderer.muted(f"  cd {spec.name}")
+    renderer.muted(f"  {run_hint_for(spec)}")
+    renderer.muted(f"  {open_readme_hint()}")
+
+
+def run_hint_for(spec: ProjectSpec) -> str:
+    command_map = {
+        ("python", "flask"): "Start the dev server: flask --app src.app:create_app run --debug",
+        ("python", "fastapi"): "Start the dev server: uvicorn src.main:app --reload",
+        ("python", "django"): "Start the dev server: python manage.py runserver",
+        ("python", "aiohttp"): "Start the dev server: python src/main.py",
+        ("node", "express"): "Start the dev server: npm run dev",
+        ("node", "express-ts"): "Start the dev server: npm run dev",
+        ("node", "next"): "Start the dev server: npm run dev",
+        ("node", "koa"): "Start the dev server: npm run dev",
+        ("ruby", "rails"): "Start the dev server: bin/rails server",
+        ("ruby", "sinatra"): "Start the dev server: bundle exec ruby app.rb",
+        ("java", "springboot"): "Start the dev server: ./mvnw spring-boot:run",
+        ("java", "javalin"): "Start the dev server: mvn exec:java",
+    }
+    return command_map.get((spec.language, spec.framework), "Start the dev server: follow README.md")
+
+
+def open_readme_hint() -> str:
+    if sys.platform == "darwin":
+        return "Open README.md: open README.md"
+    if sys.platform.startswith("win"):
+        return "Open README.md: start README.md"
+    return "Open README.md: xdg-open README.md"

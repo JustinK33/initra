@@ -1,2 +1,2 @@
-# initra uses only the Python standard library.
+# Runtime dependencies are declared in pyproject.toml.
 # This file is intentionally kept for packaging completeness.
