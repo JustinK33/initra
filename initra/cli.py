@@ -1,3 +1,10 @@
+"""Command-line entry point: argument parsing, interactive prompts, output.
+
+Parses the ``initra <name> <language> <framework> [options]`` invocation (or
+prompts for anything missing), builds a :class:`ProjectSpec`, hands it to
+``scaffold_project``, and renders the result. Also handles ``--update`` and
+``--uninstall``.
+"""
 from __future__ import annotations
 
 import argparse

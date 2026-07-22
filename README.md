@@ -27,8 +27,6 @@ initra myapi python fastapi
 
 ![initra CLI demo](https://raw.githubusercontent.com/JustinK33/initra/main/docs/demo.gif)
 
-> Replace `docs/demo.gif` with an updated terminal recording before publishing major feature updates.
-
 ## Quick Start
 
 ```bash

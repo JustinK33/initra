@@ -1,3 +1,9 @@
+"""Turns a FrameworkPlan into a real project on disk.
+
+Writes files, runs the generation and install commands, initializes git, and
+optionally creates a GitHub repo or opens the result in VS Code. Everything
+funnels through :func:`scaffold_project`.
+"""
 from __future__ import annotations
 
 import shutil

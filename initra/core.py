@@ -1,3 +1,10 @@
+"""Project specs, framework plans, and the file/template content initra writes.
+
+Each supported stack has a ``generate_*_plan`` function that returns a
+:class:`FrameworkPlan`: the files to write, the commands to run, and the text
+that ends up in the generated README. ``ops`` consumes that plan to do the
+actual scaffolding.
+"""
 from __future__ import annotations
 
 import json
