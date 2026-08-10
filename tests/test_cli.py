@@ -128,6 +128,8 @@ class CliBehaviorTests(unittest.TestCase):
         self.assertIn("koa", output)
         self.assertIn("sinatra", output)
         self.assertIn("javalin", output)
+        self.assertIn("gin", output)
+        self.assertIn("cmake", output)
 
     def test_list_flag_prints_stacks(self) -> None:
         buffer = io.StringIO()

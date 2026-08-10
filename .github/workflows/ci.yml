@@ -40,3 +40,5 @@ jobs:
           python initra.py demo-ruby ruby sinatra --dry-run --no-git
           python initra.py demo-java java javalin --dry-run --no-git
           python initra.py demo-next node next --dry-run --no-git
+          python initra.py demo-go go gin --dry-run --no-git
+          python initra.py demo-cpp cpp cmake --dry-run --no-git

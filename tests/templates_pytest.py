@@ -4,7 +4,14 @@ from pathlib import Path
 
 import pytest
 
-from initra.core import ProjectSpec, generate_framework_plan, render_gitignore
+from initra.core import (
+    ProjectSpec,
+    ScaffoldError,
+    generate_framework_plan,
+    load_template,
+    render_gitignore,
+    render_readme,
+)
 
 
 STACK_CASES = [
@@ -119,6 +126,39 @@ STACK_CASES = [
         },
         id="java-javalin",
     ),
+    pytest.param(
+        "go",
+        "gin",
+        False,
+        {
+            "go.mod",
+            "main.go",
+            "internal/config/config.go",
+            "internal/router/router.go",
+            "internal/store/user_store.go",
+            "internal/handlers/health.go",
+            "internal/handlers/users.go",
+            "internal/handlers/users_test.go",
+        },
+        id="go-gin",
+    ),
+    pytest.param(
+        "cpp",
+        "cmake",
+        False,
+        {
+            "CMakeLists.txt",
+            "src/main.cpp",
+            "src/server.cpp",
+            "src/server.h",
+            "src/user_store.cpp",
+            "src/user_store.h",
+            "tests/CMakeLists.txt",
+            "tests/test_user_store.cpp",
+            "tests/test_server.cpp",
+        },
+        id="cpp-cmake",
+    ),
 ]
 
 
@@ -200,21 +240,65 @@ def test_python_template_files_compile(
         compile(content, path, "exec")
 
 
-@pytest.mark.parametrize("language", ["python", "node", "ruby", "java"])
+LANGUAGE_FRAMEWORKS = {
+    "python": "flask",
+    "node": "express",
+    "ruby": "sinatra",
+    "java": "javalin",
+    "go": "gin",
+    "cpp": "cmake",
+}
+
+
+@pytest.mark.parametrize("language", sorted(LANGUAGE_FRAMEWORKS))
 def test_gitignore_includes_env_rules_for_all_languages(tmp_path: Path, language: str) -> None:
-    framework = {
-        "python": "flask",
-        "node": "express",
-        "ruby": "sinatra",
-        "java": "javalin",
-    }[language]
     spec = ProjectSpec(
         name="demo-template",
         language=language,
-        framework=framework,
+        framework=LANGUAGE_FRAMEWORKS[language],
         path=tmp_path / "demo-template",
     )
     content = render_gitignore(spec)
     assert ".env\n" in content
     assert ".env.*\n" in content
     assert "!.env.example\n" in content
+
+
+@pytest.mark.parametrize(
+    "language,expected",
+    [
+        ("go", ["bin/", "*.test"]),
+        ("cpp", ["build/", "CMakeCache.txt", "compile_commands.json"]),
+    ],
+)
+def test_gitignore_covers_build_artifacts(tmp_path: Path, language: str, expected: list[str]) -> None:
+    spec = ProjectSpec(
+        name="demo-template",
+        language=language,
+        framework=LANGUAGE_FRAMEWORKS[language],
+        path=tmp_path / "demo-template",
+    )
+    content = render_gitignore(spec)
+    for rule in expected:
+        assert f"{rule}\n" in content
+
+
+def test_missing_packaged_template_raises(tmp_path: Path) -> None:
+    with pytest.raises(ScaffoldError, match="Missing packaged template"):
+        load_template("go/gin/does-not-exist.go")
+
+
+@pytest.mark.parametrize("language,framework,typescript,expected_files", STACK_CASES)
+def test_readme_resolves_placeholders_from_plan_text(
+    tmp_path: Path,
+    language: str,
+    framework: str,
+    typescript: bool,
+    expected_files: set[str],
+) -> None:
+    """Plan text (readme_run, project_notes) may contain {{project_name}} too."""
+    spec = build_spec(tmp_path, language, framework, tutorial=False, typescript=typescript)
+    readme = render_readme(spec, generate_framework_plan(spec))
+
+    assert "{{" not in readme
+    assert spec.name in readme
