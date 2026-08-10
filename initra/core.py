@@ -19,13 +19,14 @@ from typing import Iterable
 PROJECT_ROOT = Path.cwd()
 TEMPLATES_DIR = Path(__file__).with_name("templates")
 
-SUPPORTED_LANGUAGES = {"python", "node", "ruby", "java", "go"}
+SUPPORTED_LANGUAGES = {"python", "node", "ruby", "java", "go", "cpp"}
 SUPPORTED_FRAMEWORKS = {
     "python": {"flask", "fastapi", "django", "aiohttp"},
     "node": {"express", "express-ts", "next", "koa"},
     "ruby": {"rails", "sinatra"},
     "java": {"springboot", "javalin"},
     "go": {"gin"},
+    "cpp": {"cmake"},
 }
 
 
@@ -117,6 +118,8 @@ def generate_framework_plan(spec: ProjectSpec) -> FrameworkPlan:
         return generate_java_plan(spec)
     if spec.language == "go":
         return generate_go_plan(spec)
+    if spec.language == "cpp":
+        return generate_cpp_plan(spec)
     raise ScaffoldError(f"Unsupported language: {spec.language}")
 
 
@@ -474,6 +477,53 @@ def generate_go_plan(spec: ProjectSpec) -> FrameworkPlan:
             "Request bodies are validated by Gin binding tags on the structs in `internal/models`.",
             "`internal/store` keeps users in memory behind a mutex and can be swapped for a database later.",
             "`main.go` runs an `http.Server` with graceful shutdown on SIGINT/SIGTERM.",
+        ],
+    )
+
+
+CPP_CMAKE_FILES = [
+    "CMakeLists.txt",
+    "Dockerfile",
+    ".dockerignore",
+    ".clang-format",
+    ".env.example",
+    "src/main.cpp",
+    "src/server.h",
+    "src/server.cpp",
+    "src/user_store.h",
+    "src/user_store.cpp",
+    "tests/CMakeLists.txt",
+    "tests/test_user_store.cpp",
+    "tests/test_server.cpp",
+]
+
+
+def generate_cpp_plan(spec: ProjectSpec) -> FrameworkPlan:
+    # ponytail: on-disk templates only, same as go/gin. See generate_go_plan.
+    files = [
+        (path, render_template(load_template(f"cpp/cmake/{path}"), {"project_name": spec.name}))
+        for path in CPP_CMAKE_FILES
+    ]
+    # The configure step is what downloads the FetchContent dependencies.
+    post_commands = [] if spec.no_install else [["cmake", "-S", ".", "-B", "build"]]
+    return FrameworkPlan(
+        files=files,
+        commands=[],
+        post_commands=post_commands,
+        readme_summary="A CMake C++20 HTTP API starter with a linkable core library and ctest coverage.",
+        readme_run=(
+            "Build with `cmake --build build`, run `./build/{{project_name}}`, "
+            "then visit http://localhost:8080/health. Run tests with `ctest --test-dir build`."
+        ),
+        readme_install=(
+            "Install CMake 3.20+ and a C++20 compiler, then run `cmake -S . -B build`. "
+            "The first configure downloads cpp-httplib and nlohmann/json, so it needs network access."
+        ),
+        project_notes=[
+            "Includes `/health` plus CRUD routes for `/users` and `/users/:id`.",
+            "Application logic lives in the `{{project_name}}_lib` target so tests link it directly.",
+            "`src/user_store.cpp` keeps users in memory behind a mutex and can be swapped for a database later.",
+            "Dependencies are pinned by tag via CMake `FetchContent`; no system packages are required.",
         ],
     )
 
@@ -3265,6 +3315,18 @@ def render_gitignore(spec: ProjectSpec) -> str:
             "*.test",
             "coverage.out",
             "vendor/",
+        ])
+    elif spec.language == "cpp":
+        common.extend([
+            "build/",
+            "cmake-build-*/",
+            "CMakeCache.txt",
+            "CMakeFiles/",
+            "compile_commands.json",
+            "*.o",
+            "*.a",
+            "*.so",
+            "*.dylib",
         ])
     return "\n".join(common) + "\n"
 
