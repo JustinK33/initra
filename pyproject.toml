@@ -45,7 +45,9 @@ where = ["."]
 include = ["initra*"]
 
 [tool.setuptools.package-data]
-initra = ["templates/**/*"]
+# The second pattern is needed because ** does not match dotfiles such as
+# .env.example, .dockerignore, and .clang-format.
+initra = ["templates/**/*", "templates/**/.*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
