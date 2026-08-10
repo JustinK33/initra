@@ -19,12 +19,13 @@ from typing import Iterable
 PROJECT_ROOT = Path.cwd()
 TEMPLATES_DIR = Path(__file__).with_name("templates")
 
-SUPPORTED_LANGUAGES = {"python", "node", "ruby", "java"}
+SUPPORTED_LANGUAGES = {"python", "node", "ruby", "java", "go"}
 SUPPORTED_FRAMEWORKS = {
     "python": {"flask", "fastapi", "django", "aiohttp"},
     "node": {"express", "express-ts", "next", "koa"},
     "ruby": {"rails", "sinatra"},
     "java": {"springboot", "javalin"},
+    "go": {"gin"},
 }
 
 
@@ -114,6 +115,8 @@ def generate_framework_plan(spec: ProjectSpec) -> FrameworkPlan:
         return generate_ruby_plan(spec)
     if spec.language == "java":
         return generate_java_plan(spec)
+    if spec.language == "go":
+        return generate_go_plan(spec)
     raise ScaffoldError(f"Unsupported language: {spec.language}")
 
 
@@ -430,6 +433,48 @@ def generate_java_plan(spec: ProjectSpec) -> FrameworkPlan:
         readme_run="Run `./mvnw spring-boot:run` or `mvn spring-boot:run`.",
         readme_install="The Maven dependencies are already defined in the generated `pom.xml`.",
         project_notes=["The project uses Spring Initializr with web and actuator starters."],
+    )
+
+
+GO_GIN_FILES = [
+    "go.mod",
+    "main.go",
+    "Dockerfile",
+    ".dockerignore",
+    ".env.example",
+    "internal/config/config.go",
+    "internal/router/router.go",
+    "internal/middleware/logger.go",
+    "internal/models/user.go",
+    "internal/store/user_store.go",
+    "internal/handlers/health.go",
+    "internal/handlers/users.go",
+    "internal/handlers/users_test.go",
+]
+
+
+def generate_go_plan(spec: ProjectSpec) -> FrameworkPlan:
+    # ponytail: templates live on disk only (no inline fallback), so load_template
+    # raises if one is missing instead of writing an empty file. No tutorial
+    # variants yet -- `-t` falls through to the standard templates.
+    files = [
+        (path, render_template(load_template(f"go/gin/{path}"), {"project_name": spec.name}))
+        for path in GO_GIN_FILES
+    ]
+    post_commands = [] if spec.no_install else [["go", "mod", "tidy"]]
+    return FrameworkPlan(
+        files=files,
+        commands=[],
+        post_commands=post_commands,
+        readme_summary="A Gin API starter with layered handlers, an in-memory store, and graceful shutdown.",
+        readme_run="Run `go run .`, then visit http://localhost:8080/health. Run tests with `go test ./...`.",
+        readme_install="Install Go 1.22 or newer, then run `go mod tidy` to download dependencies.",
+        project_notes=[
+            "Includes `/health` plus CRUD routes for `/users` and `/users/:id`.",
+            "Request bodies are validated by Gin binding tags on the structs in `internal/models`.",
+            "`internal/store` keeps users in memory behind a mutex and can be swapped for a database later.",
+            "`main.go` runs an `http.Server` with graceful shutdown on SIGINT/SIGTERM.",
+        ],
     )
 
 
@@ -3212,6 +3257,14 @@ def render_gitignore(spec: ProjectSpec) -> str:
             "*.class",
             ".gradle/",
             "out/",
+        ])
+    elif spec.language == "go":
+        common.extend([
+            "bin/",
+            "*.exe",
+            "*.test",
+            "coverage.out",
+            "vendor/",
         ])
     return "\n".join(common) + "\n"
 

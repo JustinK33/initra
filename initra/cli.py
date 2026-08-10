@@ -300,11 +300,11 @@ def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         description="Scaffold a production-ready project for common web stacks. Use `initra man` for a quick manual.",
     )
     parser.add_argument("name", nargs="?", help="Project directory name")
-    parser.add_argument("language", nargs="?", help="Language: python, node, ruby, java")
+    parser.add_argument("language", nargs="?", help="Language: python, node, ruby, java, go")
     parser.add_argument(
         "framework",
         nargs="?",
-        help="Framework: flask, fastapi, django, aiohttp, express, next, koa, rails, sinatra, springboot, javalin",
+        help="Framework: flask, fastapi, django, aiohttp, express, next, koa, rails, sinatra, springboot, javalin, gin",
     )
     parser.add_argument("--gh", action="store_true", help="Create a GitHub repo with gh")
     parser.add_argument("--public", action="store_true", help="Create a public GitHub repo")
@@ -596,6 +596,7 @@ def run_hint_for(spec: ProjectSpec) -> str:
         ("ruby", "sinatra"): "Start the dev server: bundle exec ruby app.rb",
         ("java", "springboot"): "Start the dev server: ./mvnw spring-boot:run",
         ("java", "javalin"): "Start the dev server: mvn exec:java",
+        ("go", "gin"): "Start the dev server: go run .",
     }
     return command_map.get((spec.language, spec.framework), "Start the dev server: follow README.md")
 
