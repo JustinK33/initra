@@ -3141,7 +3141,13 @@ DEFAULT_KOA_SIMPLE_TEST = textwrap.dedent(
 ).strip() + "\n"
 
 
-def load_template(relative_path: str, fallback: str, tutorial: bool = False) -> str:
+def load_template(relative_path: str, fallback: str | None = None, tutorial: bool = False) -> str:
+    """Read a packaged template, falling back to an inline default.
+
+    Stacks that keep their templates on disk only omit ``fallback``; a missing
+    file is then a packaging bug and raises instead of silently producing an
+    empty project.
+    """
     if tutorial:
         # Try tutorial version first (e.g., python/fastapi/tutorial/main.py)
         tutorial_candidate = TEMPLATES_DIR / "tutorial" / relative_path
@@ -3150,6 +3156,8 @@ def load_template(relative_path: str, fallback: str, tutorial: bool = False) -> 
     candidate = TEMPLATES_DIR / relative_path
     if candidate.exists():
         return candidate.read_text(encoding="utf-8")
+    if fallback is None:
+        raise ScaffoldError(f"Missing packaged template: {relative_path}")
     return fallback
 
 
