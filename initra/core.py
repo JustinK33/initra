@@ -3272,16 +3272,22 @@ def render_gitignore(spec: ProjectSpec) -> str:
 def render_readme(spec: ProjectSpec, plan: FrameworkPlan) -> str:
     framework_template = f"{spec.language}/{spec.framework}/README.md"
     template = load_template(framework_template, load_template("shared/README.md", DEFAULT_README_TEMPLATE))
-    return render_template(
+    body = render_template(
         template,
         {
-            "project_name": spec.name,
-            "language": spec.language,
-            "framework": spec.framework,
             "summary": plan.readme_summary,
             "install": plan.readme_install,
             "run": plan.readme_run,
             "notes": format_notes(plan.project_notes),
+        },
+    )
+    # Plan text may itself contain {{project_name}}, so substitute names last.
+    return render_template(
+        body,
+        {
+            "project_name": spec.name,
+            "language": spec.language,
+            "framework": spec.framework,
         },
     )
 
