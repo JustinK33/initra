@@ -3,7 +3,7 @@
 
 **A cross-platform CLI for scaffolding production-ready starter projects.**
 
-Generate fully-configured starter projects for Python, Node.js, Ruby, and Java from one command.
+Generate fully-configured starter projects for Python, Node.js, Ruby, Java, Go, and C++ from one command.
 
 ## Install
 
@@ -60,6 +60,8 @@ initra <name> <language> <framework> [options]
 - Node.js: Express (JS/TS), Next.js, Koa
 - Ruby: Rails, Sinatra
 - Java: Spring Boot, Javalin
+- Go: Gin
+- C++: CMake
 
 ✅ **Automatic Setup**
 - Project directory creation
@@ -111,6 +113,12 @@ initra <name> <language> <framework> [options]
 ### Java
 - **Spring Boot** – Enterprise framework
 - **Javalin** – Lightweight Java/Kotlin web framework
+
+### Go
+- **Gin** – Fast HTTP framework with layered handlers and graceful shutdown
+
+### C++
+- **CMake** – C++20 HTTP API with a linkable core library and `ctest` coverage
 
 ## Examples
 

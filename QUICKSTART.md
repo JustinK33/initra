@@ -99,6 +99,8 @@ initra backend node express --ts
 initra webapp node next --gh --public --open
 initra blog ruby rails
 initra service java springboot
+initra gateway go gin
+initra engine cpp cmake
 ```
 
 ## All Supported Stacks
@@ -120,6 +122,12 @@ initra service java springboot
 ### Java
 - `springboot` – Enterprise framework
 - `javalin` – Lightweight service framework
+
+### Go
+- `gin` – Fast HTTP API with layered handlers
+
+### C++
+- `cmake` – C++20 HTTP API built with CMake
 
 ### More Popular Choices
 - `python aiohttp` – Async Python web services
@@ -152,6 +160,19 @@ bin/rails test
 ```bash
 cd myapp
 ./mvnw test
+```
+
+### Go
+```bash
+cd myapp
+go test ./...
+```
+
+### C++
+```bash
+cd myapp
+cmake --build build
+ctest --test-dir build --output-on-failure
 ```
 
 ## Common Options

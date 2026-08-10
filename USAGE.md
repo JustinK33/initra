@@ -106,6 +106,38 @@ cd myapp
 ./mvnw spring-boot:run
 ```
 
+### Go
+
+| Framework | Command | Use Case |
+|-----------|---------|----------|
+| Gin | `initra myapp go gin` | Fast HTTP API with layered handlers |
+
+**Example:**
+```bash
+initra myapi go gin
+cd myapi
+go run .
+# then: curl localhost:8080/health
+```
+
+### C++
+
+| Framework | Command | Use Case |
+|-----------|---------|----------|
+| CMake | `initra myapp cpp cmake` | C++20 HTTP API with a linkable core library |
+
+**Example:**
+```bash
+initra myapi cpp cmake
+cd myapi
+cmake --build build
+./build/myapi
+# then: curl localhost:8080/health
+```
+
+The first `cmake -S . -B build` (run automatically unless you pass `--no-install`) downloads
+cpp-httplib and nlohmann/json via CMake `FetchContent`, so it needs network access.
+
 ## Common Examples
 
 ### Create a FastAPI REST API
@@ -356,7 +388,7 @@ ls -la frontend backend
 Each generated project includes:
 
 - **Source code** – Minimal working starter
-- **Dependencies file** – `requirements.txt`, `package.json`, `pom.xml`, or `Gemfile`
+- **Dependencies file** – `requirements.txt`, `package.json`, `pom.xml`, `Gemfile`, `go.mod`, or `CMakeLists.txt`
 - **Tests directory** – Basic test structure and example tests
 - **.gitignore** – Language-appropriate ignores
 - **README.md** – Project-specific documentation
@@ -404,6 +436,47 @@ myapp/
 ├── .next/           # Build output
 ├── package.json
 └── tsconfig.json
+```
+
+**Go (Gin):**
+```
+myapi/
+├── main.go                       # http.Server with graceful shutdown
+├── go.mod
+├── internal/
+│   ├── config/config.go          # env-driven settings
+│   ├── router/router.go          # route + middleware wiring
+│   ├── handlers/
+│   │   ├── health.go
+│   │   ├── users.go              # /users CRUD
+│   │   └── users_test.go
+│   ├── middleware/logger.go
+│   ├── models/user.go            # structs with binding tags
+│   └── store/user_store.go       # in-memory store behind a mutex
+├── .env.example
+├── .gitignore
+├── Dockerfile
+└── README.md
+```
+
+**C++ (CMake):**
+```
+myapi/
+├── CMakeLists.txt                # C++20, FetchContent deps, myapi_lib + myapi
+├── build/                        # configured output (gitignored)
+├── src/
+│   ├── main.cpp                  # entry point, signal handling
+│   ├── server.h / server.cpp     # /health + /users routes
+│   └── user_store.h / .cpp       # in-memory store behind a mutex
+├── tests/
+│   ├── CMakeLists.txt
+│   ├── test_user_store.cpp       # ctest target
+│   └── test_server.cpp           # ctest target, exercises live HTTP
+├── .clang-format
+├── .env.example
+├── .gitignore
+├── Dockerfile
+└── README.md
 ```
 
 ## Tips and Best Practices

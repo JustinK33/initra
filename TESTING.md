@@ -275,6 +275,44 @@ cd ..
 rm -rf test-javalin
 ```
 
+### Go (Gin)
+
+```bash
+initra test-gin go gin
+cd test-gin
+
+go build ./...
+go vet ./...
+go test ./...
+
+# Start the server
+go run .
+# Visit http://localhost:8080/health
+# curl -XPOST localhost:8080/users -H 'content-type: application/json' \
+#   -d '{"name":"Ada Lovelace","email":"ada@example.com"}'
+
+cd ..
+rm -rf test-gin
+```
+
+### C++ (CMake)
+
+```bash
+initra test-cmake cpp cmake
+cd test-cmake
+
+# The configure step ran during scaffolding; this builds and tests.
+cmake --build build
+ctest --test-dir build --output-on-failure
+
+# Start the server
+./build/test-cmake
+# Visit http://localhost:8080/health
+
+cd ..
+rm -rf test-cmake
+```
+
 ## Verifying TypeScript Support
 
 ### Full TypeScript Validation
@@ -345,3 +383,5 @@ A successful test run should:
 - ✅ For Python: tests pass after virtualenv activation and pip install
 - ✅ For Node.js: npm install succeeds and tests pass
 - ✅ For Ruby/Java: all dependencies install and tests pass
+- ✅ For Go: `go build`, `go vet`, and `go test ./...` all succeed
+- ✅ For C++: `cmake --build build` compiles cleanly and `ctest` passes

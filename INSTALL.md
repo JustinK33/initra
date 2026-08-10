@@ -29,6 +29,19 @@ Before installing `initra`, make sure you have the following installed:
 - **Java 21 or later** – required for Spring Boot starters
 - **Maven** – optional, but recommended for building projects
 
+#### Go Projects
+- **Go** – version 1.22 or later
+- Dependencies are downloaded automatically by `go mod tidy`
+
+#### C++ Projects
+- **CMake** – version 3.20 or later
+  - **macOS** (Homebrew): `brew install cmake`
+  - **Windows** (Chocolatey): `choco install cmake`
+  - **Linux** (apt): `sudo apt install cmake`
+- **A C++20 compiler** – GCC 11+, Clang 14+, or MSVC 2022
+- Dependencies (cpp-httplib, nlohmann/json) are fetched by CMake on the first configure,
+  which therefore needs network access
+
 ### Optional
 
 - **GitHub CLI** (`gh`) – for `--gh` flag to create GitHub repositories
