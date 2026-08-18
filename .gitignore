@@ -29,6 +29,11 @@ npm-debug.log*
 .env
 .env.local
 .env.*
+# Packaged templates are source, not secrets. Without this negation the .env.*
+# rule above silently keeps templates/*/*/.env.example out of the repo, and the
+# stacks that ship one fail to scaffold from a clean checkout. Real .env files
+# stay ignored everywhere, including inside generated projects.
+!initra/templates/**/.env.example
 test-*/
 *.claude
 initra.egg-info
