@@ -71,6 +71,10 @@ def scaffold_project(spec: ProjectSpec, echo: bool | None = None) -> dict[str, o
             opened_in_vscode=False,
         ).as_dict()
 
+    # These stacks delegate to an official scaffolder (create-next-app, rails new,
+    # spring init) that insists on creating the project directory itself, so their
+    # commands run in the parent and the directory is checked for afterwards.
+    # Every other stack gets a pre-created directory and runs inside it.
     external_initializer = (
         (spec.language == "node" and spec.framework == "next")
         or (spec.language == "ruby" and spec.framework == "rails")
@@ -89,6 +93,9 @@ def scaffold_project(spec: ProjectSpec, echo: bool | None = None) -> dict[str, o
             print(f"Creating {spec.language}/{spec.framework} project in {spec.path}")
         run_generation_commands(plan.commands, spec.path, executed_commands, echo=echo)
 
+    # Files land between commands and post_commands by contract: post_commands are
+    # the dependency installs (npm install, go mod tidy, bundle install) and need a
+    # manifest already on disk.
     for relative_path, content in plan.files:
         write_file(spec.path / relative_path, content)
         created_files.append(relative_path)

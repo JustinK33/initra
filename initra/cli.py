@@ -148,6 +148,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         renderer.error(str(exc))
         return 1
 
+    # The branches differ only in how progress is shown. echo=False silences
+    # scaffold_project's own prints so they cannot interleave with rich output or
+    # corrupt the JSON payload; a spinner is used only on a real terminal, and
+    # never for --dry-run, whose whole output is the preview it prints.
     try:
         if spec.output_json:
             result = scaffold_project(spec, echo=False)
@@ -512,6 +516,9 @@ def build_spec(args: argparse.Namespace) -> ProjectSpec:
 
     project_name = sanitize_project_name(args.name)
     project_path = output_dir / project_name
+    # --ts selects a separate template tree, so it becomes its own framework key.
+    # Rewritten after validation and after project_path, both of which use the
+    # user-facing name. "express-ts" is also accepted directly.
     if framework == "express" and args.ts:
         framework = "express-ts"
 

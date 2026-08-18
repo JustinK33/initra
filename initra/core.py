@@ -75,6 +75,13 @@ def format_supported_stacks() -> str:
 
 
 def sanitize_project_name(value: str) -> str:
+    """Reduce a project name to lowercase alphanumerics separated by single dashes.
+
+    This is the trust boundary: the result becomes a directory name and is passed
+    as an argv element to git, gh, and the external scaffolders. Commands are run
+    as argument lists and never through a shell, so this is defence in depth
+    rather than the only protection.
+    """
     cleaned = []
     previous_was_separator = False
     for char in value.strip().lower():
@@ -1040,6 +1047,8 @@ def template_exists(relative_path: str) -> bool:
 def render_template(template: str, values: dict[str, str]) -> str:
     rendered = template
     for key, value in values.items():
+        # Five braces: two pairs escape to literal {{ }}, the fifth interpolates
+        # key, giving the placeholder "{{key}}".
         rendered = rendered.replace(f"{{{{{key}}}}}", value)
     return rendered
 
