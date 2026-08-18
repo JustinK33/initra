@@ -304,9 +304,13 @@ python3 initra.py myapp python flask
 python3 -m pip install -e .
 initra myapp python fastapi
 
-# Run automated CLI tests
-python3 -m unittest discover -s tests
+# Run the test suite
+python3 -m pytest tests
 ```
+
+Use `pytest`, not `unittest discover`. The parametrized every-stack suite lives in
+`tests/templates_pytest.py`, which `unittest discover` does not collect - it would
+report `OK` after running roughly half the tests.
 
 ## Prerequisites
 
@@ -320,10 +324,12 @@ Optional:
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make focused changes
-4. Open a pull request
+See [CONTRIBUTING.md](https://github.com/JustinK33/initra/blob/main/CONTRIBUTING.md) for the
+workflow and the checklist for adding a new stack.
+
+[WALKTHROUGH.md](https://github.com/JustinK33/initra/blob/main/WALKTHROUGH.md) is the
+architecture reference: how `cli.py`, `core.py`, and `ops.py` divide the work, how the
+template system resolves files, and the design decisions behind both.
 
 ## License
 

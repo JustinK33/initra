@@ -30,6 +30,7 @@ Homepage = "https://github.com/JustinK33/initra"
 Repository = "https://github.com/JustinK33/initra"
 Documentation = "https://github.com/JustinK33/initra/blob/main/USAGE.md"
 Issues = "https://github.com/JustinK33/initra/issues"
+Contributing = "https://github.com/JustinK33/initra/blob/main/CONTRIBUTING.md"
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<9"]
