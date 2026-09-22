@@ -61,15 +61,17 @@ It's also why the tests can cover all fourteen stacks quickly, since asserting o
 
 ## What building this taught me
 
-**A fallback that never fires is worse than no fallback.** `core.py` carried every template twice: once as a real file under `initra/templates/` and once as an inline `DEFAULT_*` constant passed to `load_template` as a safety net. I instrumented the lookup across all 14 stacks with every combination of `--tutorial`, `--license`, and `--no-install`, and 113 of 127 lookups resolved from disk. The constants behind them were unreachable, which meant they were free to drift from the templates actually being shipped, silently. Exactly one, `java/javalin/Dockerfile`, had no packaged file, so it became a real template and the rest were deleted. `load_template` now raises `ScaffoldError` on a missing file instead of quietly writing an empty one.
+**A fallback that never fires is worse than no fallback.**
+Every template existed twice, as a packaged file and as an inline `DEFAULT_*` constant, and instrumenting all 14 stacks showed 113 of 127 lookups resolving from disk, so the constants were unreachable and free to drift silently.
+One stack genuinely had no packaged file, so that became a real template and the rest were deleted, and `load_template` now raises instead of quietly writing an empty file.
 
-**Deleting the safety net immediately exposed the bug it had been hiding, twice.** With no fallbacks, scaffolding failed outright, and it turned out `.env.example`, `.dockerignore`, and `.clang-format` were never making it into installed builds, because `templates/**/*` does not match dotfiles. Fixed with a second package-data glob. Then a clean checkout failed the same way for a completely different reason: the `.env.*` line in `.gitignore` matched `initra/templates/*/*/.env.example`, so those three files existed only on my machine and had never been committed. Published wheels were fine and fresh clones were broken, which is a difference I would not have found without removing the thing that was papering over both.
+**Deleting the safety net immediately exposed the bug it had been hiding, twice.**
+Three dotfiles had never been reaching installed builds because `templates/**/*` does not match dotfiles, and then a clean checkout broke for a different reason: `.env.*` in `.gitignore` meant those files only ever existed on my machine.
+Published wheels were fine and fresh clones were broken, a difference the fallback had been papering over.
 
-**`unittest discover` only matches `test*.py`.** `tests/templates_pytest.py` is the parametrized every-stack suite and CI was skipping it entirely while reporting a pass. Switching CI to pytest, which was already configured in `pyproject.toml`, took the test count from 43 to 77. The suite had been the strongest thing in the repo and roughly half of it hadn't run in CI for weeks.
-
-**Order of substitution is a correctness question.** `render_readme` substituted `{{project_name}}` before injecting the plan's own text, so any placeholder inside that text survived into the finished file. Javalin shipped generated READMEs telling people to run `docker build -t {{project_name}}`. Name substitution runs last now.
-
-**A generated project is a claim you have to check.** Templates started as one small file per stack and grew into layered structures with tests, which meant "does this scaffold" stopped being the same question as "does the result build and pass". The stack tests exist because the answer differed more than once.
+**`unittest discover` only matches `test*.py`.**
+CI was skipping `tests/templates_pytest.py`, the parametrized every-stack suite, while reporting a pass.
+Switching CI to the pytest already configured in `pyproject.toml` took the test count from 43 to 77.
 
 ## Documentation
 
